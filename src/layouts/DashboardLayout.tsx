@@ -119,8 +119,12 @@ export default function DashboardLayout() {
                     <h2 className="text-lg font-semibold sm:hidden">Overview</h2>
                 </header>
 
-                <div className="flex-1 overflow-auto p-6 sm:p-0 ">
-                    <Outlet />
+                <div
+                    className={`flex-1 overflow-auto ${
+                        !isPosPage ? 'p-6' : 'p-6 sm:p-0'
+                    }`}
+                >
+                <Outlet />
                 </div>
             </main>
             {/* Static Branding Badge */}
