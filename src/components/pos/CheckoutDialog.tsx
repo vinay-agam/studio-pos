@@ -18,10 +18,10 @@ import { ReceiptPrinter } from "./ReceiptPrinter";
 import { useReactToPrint } from "react-to-print";
 
 export function CheckoutDialog({ total, disabled }: { total: number; disabled?: boolean }) {
-    const { items, clearCart, customer, subtotal, discount, tax } = useCart();
+    const { items, clearCart, customer, subtotal, discount, discountType, discountValue, tax } = useCart();
     const [open, setOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState<"cash" | "card">("cash");
+    const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "upi">("cash");
     const [amountTendered, setAmountTendered] = useState("");
     const [lastOrder, setLastOrder] = useState<Order | null>(null);
 
@@ -30,8 +30,9 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
         contentRef: printerRef,
     });
 
-    const change = Math.max(0, (parseFloat(amountTendered) || 0) - total);
-    const canCheckout = (parseFloat(amountTendered) || 0) >= total;
+    const isCash = paymentMethod === "cash";
+    const change = isCash ? Math.max(0, (parseFloat(amountTendered) || 0) - total) : 0;
+    const canCheckout = isCash ? (parseFloat(amountTendered) || 0) >= total : true;
 
     const handleCheckout = async () => {
         setIsProcessing(true);
@@ -49,8 +50,11 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
                 total,
                 subtotal,
                 discount,
+                discountType, // Metadata
+                discountValue, // Raw inputs
                 tax,
                 status: "completed",
+                paymentMethod,
                 createdAt: new Date().toISOString()
             };
 
@@ -81,13 +85,14 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
         setLastOrder(null);
         setAmountTendered("");
         setIsProcessing(false);
+        setPaymentMethod("cash");
     };
 
     return (
         <Dialog open={open} onOpenChange={(val) => !val && handleClose()}>
             <DialogTrigger asChild>
                 <Button className="w-full mt-4" size="lg" disabled={disabled} onClick={() => setOpen(true)}>
-                    Checkout (${total.toFixed(2)})
+                    Checkout (₹{total.toFixed(2)})
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
@@ -96,41 +101,56 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
                         <DialogHeader>
                             <DialogTitle>Complete Sale</DialogTitle>
                             <DialogDescription>
-                                Total Amount Due: <span className="font-bold text-foreground">${total.toFixed(2)}</span>
+                                Total Amount Due: <span className="font-bold text-foreground">₹{total.toFixed(2)}</span>
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-3 gap-2">
                                 <Button
                                     variant={paymentMethod === "cash" ? "default" : "outline"}
                                     onClick={() => setPaymentMethod("cash")}
+                                    className="w-full"
                                 >
                                     Cash
                                 </Button>
                                 <Button
                                     variant={paymentMethod === "card" ? "default" : "outline"}
                                     onClick={() => setPaymentMethod("card")}
+                                    className="w-full"
                                 >
                                     Card
                                 </Button>
+                                <Button
+                                    variant={paymentMethod === "upi" ? "default" : "outline"}
+                                    onClick={() => setPaymentMethod("upi")}
+                                    className="w-full"
+                                >
+                                    UPI
+                                </Button>
                             </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="tendered">Amount Tendered</Label>
-                                <Input
-                                    id="tendered"
-                                    type="number"
-                                    placeholder="0.00"
-                                    value={amountTendered}
-                                    onChange={(e) => setAmountTendered(e.target.value)}
-                                    autoFocus
-                                />
-                            </div>
-
-                            {parseFloat(amountTendered) > 0 && (
-                                <div className="p-4 bg-muted rounded-md text-center">
-                                    <div className="text-sm text-muted-foreground">Change Due</div>
-                                    <div className="text-2xl font-bold text-primary">${change.toFixed(2)}</div>
+                            {isCash ? (
+                                <>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="tendered">Amount Tendered</Label>
+                                        <Input
+                                            id="tendered"
+                                            type="number"
+                                            placeholder="0.00"
+                                            value={amountTendered}
+                                            onChange={(e) => setAmountTendered(e.target.value)}
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div className="p-4 bg-muted rounded-md text-center">
+                                        <div className="text-sm text-muted-foreground">Change Due</div>
+                                        <div className="text-2xl font-bold text-primary">₹{change.toFixed(2)}</div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="p-8 border-2 border-dashed rounded-md flex flex-col items-center justify-center text-muted-foreground">
+                                    {paymentMethod === 'card' && <p>Swipe card on terminal...</p>}
+                                    {paymentMethod === 'upi' && <p>Waiting for UPI payment...</p>}
                                 </div>
                             )}
                         </div>
@@ -153,7 +173,7 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
                                 Order Completed!
                             </DialogTitle>
                             <DialogDescription className="text-center">
-                                Payment processed successfully.
+                                Payment processed via <span className="uppercase font-bold">{lastOrder.paymentMethod}</span>.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="flex flex-col gap-3 py-4">

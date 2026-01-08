@@ -56,7 +56,7 @@ export default function OrdersPage() {
                                 {order.items.length} Items
                                 {order.customerId && <div className="text-xs text-muted-foreground">Cust: {order.customerId}</div>}
                             </TableCell>
-                            <TableCell>${order.total.toFixed(2)}</TableCell>
+                            <TableCell>₹{order.total.toFixed(2)}</TableCell>
                             <TableCell className="text-right">
                                 {actions ? actions(order) : null}
                             </TableCell>

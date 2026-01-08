@@ -1,12 +1,17 @@
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingCart, Save } from "lucide-react";
 import { CheckoutDialog } from "./CheckoutDialog";
 import { CustomerSelect } from "./CustomerSelect";
 
 export function CartPanel() {
-    const { items, removeFromCart, updateQuantity, subtotal, discount, setDiscount, tax, taxRate, total, clearCart, customer, setCustomer } = useCart();
+    const {
+        items, removeFromCart, updateQuantity, clearCart,
+        customer, setCustomer,
+        subtotal, discount, discountValue, setDiscountValue, discountType, setDiscountType,
+        tax, taxRate, total, saveDraft
+    } = useCart();
 
     if (items.length === 0) {
         return (
@@ -26,9 +31,14 @@ export function CartPanel() {
                     <h2 className="font-semibold text-lg flex items-center gap-2">
                         <ShoppingCart className="h-5 w-5" /> Current Sale
                     </h2>
-                    <Button variant="ghost" size="sm" onClick={clearCart} className="text-destructive hover:text-destructive">
-                        Clear
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={saveDraft} title="Save Draft">
+                            <Save className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={clearCart} className="text-destructive hover:text-destructive">
+                            Clear
+                        </Button>
+                    </div>
                 </div>
                 <CustomerSelect onSelect={setCustomer} selectedId={customer?.id} />
             </div>
@@ -44,7 +54,7 @@ export function CartPanel() {
                             </h4>
                             <p className="text-xs text-muted-foreground">{item.id}</p>
                             <div className="font-semibold text-sm">
-                                ${(item.price * item.quantity).toFixed(2)}
+                                ₹{(item.price * item.quantity).toFixed(2)}
                             </div>
                         </div>
 
@@ -84,37 +94,52 @@ export function CartPanel() {
             <div className="p-4 border-t bg-muted/40 space-y-3">
                 <div className="flex justify-between text-sm items-center">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                 </div>
 
                 <div className="flex justify-between text-sm items-center">
                     <span className="text-muted-foreground">Discount</span>
                     <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">-</span>
-                        <div className="relative w-20">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                        <div className="flex border rounded-md">
+                            <button
+                                onClick={() => setDiscountType("amount")}
+                                className={`px-2 py-1 text-xs border-r ${discountType === "amount" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
+                            >
+                                ₹
+                            </button>
+                            <button
+                                onClick={() => setDiscountType("percent")}
+                                className={`px-2 py-1 text-xs ${discountType === "percent" ? "bg-primary text-primary-foreground" : "bg-background hover:bg-muted"}`}
+                            >
+                                %
+                            </button>
+                        </div>
+                        <div className="relative w-16">
                             <input
                                 type="number"
                                 min="0"
-                                className="w-full h-8 pl-5 pr-2 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
-                                value={discount > 0 ? discount : ''}
-                                onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                                placeholder="0.00"
+                                className="w-full h-8 px-2 rounded-md border border-input bg-background text-sm text-right focus:outline-none focus:ring-2 focus:ring-ring"
+                                value={discountValue > 0 ? discountValue : ''}
+                                onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
+                                placeholder="0"
                             />
                         </div>
+                        <span className="text-xs text-muted-foreground min-w-[3rem] text-right">
+                            -₹{discount.toFixed(2)}
+                        </span>
                     </div>
                 </div>
 
                 <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax ({(taxRate * 100).toFixed(0)}%)</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>₹{tax.toFixed(2)}</span>
                 </div>
 
                 <Separator />
 
                 <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                 </div>
 
                 <CheckoutDialog total={total} disabled={items.length === 0} />

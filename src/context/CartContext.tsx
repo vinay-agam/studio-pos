@@ -18,13 +18,18 @@ interface CartContextType {
 
     // Financials
     subtotal: number;
-    discount: number;
-    setDiscount: (amount: number) => void;
+    discount: number; // The calculated amount
+    discountValue: number; // The input value
+    discountType: 'amount' | 'percent';
+    setDiscountValue: (val: number) => void;
+    setDiscountType: (type: 'amount' | 'percent') => void;
+
     taxRate: number;
     tax: number;
     total: number;
 
     loadOrder: (order: any) => void;
+    saveDraft: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -38,7 +43,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
 
     const [customer, setCustomer] = useState<Customer | null>(null);
-    const [discount, setDiscount] = useState(0);
+    const [discountValue, setDiscountValue] = useState(0);
+    const [discountType, setDiscountType] = useState<'amount' | 'percent'>('amount');
     const [taxRate, setTaxRate] = useState(0);
 
     // Initial Load Settings
@@ -90,7 +96,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const clearCart = () => {
         setItems([]);
         setCustomer(null);
-        setDiscount(0);
+        setDiscountValue(0);
+        setDiscountType('amount');
         localStorage.removeItem("cart_items");
     };
 
@@ -117,7 +124,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         } else {
             setCustomer(null);
         }
-        setDiscount(order.discount || 0);
+        setDiscountValue(order.discountValue || order.discount || 0);
+        setDiscountType(order.discountType || 'amount');
     };
 
     const subtotal = items.reduce(
@@ -125,11 +133,39 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         0
     );
 
-    // Logic: Total = (Subtotal - Discount) + Tax
-    // Tax is calculated on the discounted amount
+    // Dynamic Discount Calculation
+    const discount = discountType === 'amount'
+        ? discountValue
+        : (subtotal * (discountValue / 100));
+
     const taxableAmount = Math.max(0, subtotal - discount);
     const tax = taxableAmount * taxRate;
     const total = taxableAmount + tax;
+
+    const saveDraft = async () => {
+        if (items.length === 0) return;
+        const order: any = {
+            id: crypto.randomUUID(),
+            customerId: customer?.id,
+            items: items.map(item => ({
+                sku: item.id,
+                title: item.title,
+                qty: item.quantity,
+                price: item.price,
+                variantName: item.variantName
+            })),
+            total,
+            subtotal,
+            discount,
+            discountType,
+            discountValue,
+            tax,
+            status: "draft",
+            createdAt: new Date().toISOString()
+        };
+        await db.orders.add(order);
+        clearCart();
+    };
 
     return (
         <CartContext.Provider
@@ -142,12 +178,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 updateQuantity,
                 clearCart,
                 subtotal,
-                discount,
-                setDiscount,
+                discount, // Measured amount
+                discountValue,
+                discountType,
+                setDiscountValue,
+                setDiscountType,
                 taxRate,
                 tax,
                 total,
-                loadOrder
+                loadOrder,
+                saveDraft
             }}
         >
             {children}

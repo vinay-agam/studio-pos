@@ -220,7 +220,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                 name="price"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Price ($)</FormLabel>
+                                        <FormLabel>Price (₹)</FormLabel>
                                         <FormControl>
                                             <Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} />
                                         </FormControl>

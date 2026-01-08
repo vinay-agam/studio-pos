@@ -68,7 +68,7 @@ export default function DashboardPage() {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</div>
+                        <div className="text-2xl font-bold">₹{stats.totalRevenue.toFixed(2)}</div>
                         <p className="text-xs text-muted-foreground">Lifetime sales</p>
                     </CardContent>
                 </Card>
@@ -88,7 +88,7 @@ export default function DashboardPage() {
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${stats.avgOrderValue.toFixed(2)}</div>
+                        <div className="text-2xl font-bold">₹{stats.avgOrderValue.toFixed(2)}</div>
                     </CardContent>
                 </Card>
                 <Card>
@@ -121,10 +121,10 @@ export default function DashboardPage() {
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                                     <XAxis dataKey="date" className="text-xs text-muted-foreground" />
-                                    <YAxis className="text-xs text-muted-foreground" tickFormatter={(value) => `$${value}`} />
+                                    <YAxis className="text-xs text-muted-foreground" tickFormatter={(value) => `₹${value}`} />
                                     <Tooltip
                                         contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--foreground))' }}
-                                        formatter={(value: number | undefined) => [`$${(value || 0).toFixed(2)}`, "Sales"]}
+                                        formatter={(value: number | undefined) => [`₹${(value || 0).toFixed(2)}`, "Sales"]}
                                     />
                                     <Area type="monotone" dataKey="sales" stroke="#8884d8" fillOpacity={1} fill="url(#colorSales)" />
                                 </AreaChart>
@@ -151,7 +151,7 @@ export default function DashboardPage() {
                                             <p className="text-sm font-medium leading-none">Order #{order.id.slice(0, 6)}</p>
                                             <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleTimeString()}</p>
                                         </div>
-                                        <div className="ml-auto font-medium">+${order.total.toFixed(2)}</div>
+                                        <div className="ml-auto font-medium">+₹{order.total.toFixed(2)}</div>
                                     </div>
                                 ))}
                             </div>

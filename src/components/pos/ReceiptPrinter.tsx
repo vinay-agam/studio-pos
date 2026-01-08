@@ -56,7 +56,7 @@ export const ReceiptPrinter = React.forwardRef<HTMLDivElement, ReceiptPrinterPro
                                 <div className="text-xs text-gray-500">{item.sku}</div>
                             </td>
                             <td className="text-right py-2 align-top">{item.qty}</td>
-                            <td className="text-right py-2 align-top">${(item.price * item.qty).toFixed(2)}</td>
+                            <td className="text-right py-2 align-top">₹{(item.price * item.qty).toFixed(2)}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -66,7 +66,7 @@ export const ReceiptPrinter = React.forwardRef<HTMLDivElement, ReceiptPrinterPro
             <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between font-bold text-xl">
                     <span>Total</span>
-                    <span>${order.total.toFixed(2)}</span>
+                    <span>₹{order.total.toFixed(2)}</span>
                 </div>
             </div>
 

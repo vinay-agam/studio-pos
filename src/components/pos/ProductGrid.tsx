@@ -92,7 +92,7 @@ export function ProductGrid() {
                             {product.type === 'variable' && <span className="ml-2 bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded text-xs">Options</span>}
                         </CardContent>
                         <CardFooter className="p-4 pt-0 font-bold text-lg">
-                            ${product.price.toFixed(2)}
+                            ₹{product.price.toFixed(2)}
                             {product.type === 'variable' && "+"}
                         </CardFooter>
                     </Card>
@@ -116,7 +116,7 @@ export function ProductGrid() {
                         {selectedProduct?.variants?.map(variant => (
                             <Button key={variant.id} variant="outline" className="justify-between h-auto py-3" onClick={() => handleVariantSelect(variant.id)}>
                                 <span>{variant.title}</span>
-                                <span className="font-bold">${variant.price.toFixed(2)}</span>
+                                <span className="font-bold">₹{variant.price.toFixed(2)}</span>
                             </Button>
                         ))}
                     </div>

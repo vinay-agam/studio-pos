@@ -40,10 +40,13 @@ export interface Order {
     customerId?: string;
     createdAt: string;
     subtotal: number;
-    discount: number;
+    discount: number; // Calculated value
+    discountType: 'amount' | 'percent'; // Metadata
+    discountValue: number; // Raw input (e.g., 10 for 10%)
     tax: number;
     total: number;
     status: 'draft' | 'completed' | 'cancelled';
+    paymentMethod?: 'cash' | 'card' | 'upi';
     items: OrderItem[];
 }
 

@@ -77,7 +77,7 @@ export function ProductList() {
                 const amount = parseFloat(row.getValue("price"));
                 const formatted = new Intl.NumberFormat("en-US", {
                     style: "currency",
-                    currency: "USD",
+                    currency: "INR",
                 }).format(amount);
                 return <div>{formatted}</div>;
             },
