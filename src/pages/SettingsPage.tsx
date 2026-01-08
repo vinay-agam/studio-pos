@@ -69,13 +69,66 @@ export default function SettingsPage() {
         }
     };
 
-    const handleExportCSV = async (table: 'products' | 'customers' | 'orders') => {
+    const handleExportCSV = async (type: string) => {
         let data: any[] = [];
-        if (table === 'products') data = await db.products.toArray();
-        if (table === 'customers') data = await db.customers.toArray();
-        if (table === 'orders') data = await db.orders.toArray();
+        let filename = `${type}-export-${new Date().toISOString().split('T')[0]}.csv`;
 
-        exportToCSV(data, `${table}-export-${new Date().toISOString().split('T')[0]}.csv`);
+        if (type === 'products') data = await db.products.toArray();
+        if (type === 'customers') data = await db.customers.toArray();
+        if (type === 'orders') data = await db.orders.toArray();
+
+        // Report Filtering
+        // Report Filtering
+        if (type.includes('_orders')) {
+            const allOrders = await db.orders.toArray();
+            const now = new Date();
+
+            data = allOrders.filter(order => {
+                const orderDate = new Date(order.createdAt);
+                if (type === 'daily_orders') {
+                    return orderDate.getDate() === now.getDate() &&
+                        orderDate.getMonth() === now.getMonth() &&
+                        orderDate.getFullYear() === now.getFullYear();
+                }
+                if (type === 'monthly_orders') {
+                    return orderDate.getMonth() === now.getMonth() &&
+                        orderDate.getFullYear() === now.getFullYear();
+                }
+                if (type === 'yearly_orders') {
+                    return orderDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+        }
+
+
+
+        // Format Products (Flatten variants)
+        if (type === 'products') {
+            data = data.map(product => ({
+                ...product,
+                variants: product.variants
+                    ? product.variants.map((v: any) => `${v.title} (Price: ${v.price}, Stock: ${v.inventory})`).join(' | ')
+                    : ''
+            }));
+        }
+
+        // Format data for readability (Flatten objects)
+        if (type.includes('orders')) {
+            data = data.map(order => ({
+                ...order,
+                // Format Items: "2x ItemName (Variant) | 1x ItemB"
+                items: order.items.map((i: any) =>
+                    `${i.qty}x ${i.title}${i.variantName ? ` (${i.variantName})` : ''}`
+                ).join(' | '),
+                // Format Date
+                createdAt: new Date(order.createdAt).toLocaleString(),
+                // Ensure CustomerID is readable or empty
+                customerId: order.customerId || ''
+            }));
+        }
+
+        exportToCSV(data, filename);
     };
 
     return (
@@ -219,13 +272,22 @@ export default function SettingsPage() {
                         </Button>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="col-span-1 md:col-span-1">
                     <CardHeader>
-                        <CardTitle className="text-base">Orders CSV</CardTitle>
+                        <CardTitle className="text-base">Orders Reports</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <Button variant="outline" className="w-full" onClick={() => handleExportCSV('orders')}>
-                            <FileSpreadsheet className="mr-2 h-4 w-4" /> Export Orders
+                    <CardContent className="space-y-2">
+                        <Button variant="outline" className="w-full justify-start" onClick={() => handleExportCSV('daily_orders')}>
+                            <FileSpreadsheet className="mr-2 h-4 w-4" /> Daily Report
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start" onClick={() => handleExportCSV('monthly_orders')}>
+                            <FileSpreadsheet className="mr-2 h-4 w-4" /> Monthly Report
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start" onClick={() => handleExportCSV('yearly_orders')}>
+                            <FileSpreadsheet className="mr-2 h-4 w-4" /> Yearly Report
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start" onClick={() => handleExportCSV('orders')}>
+                            <FileSpreadsheet className="mr-2 h-4 w-4" /> Export All Orders
                         </Button>
                     </CardContent>
                 </Card>

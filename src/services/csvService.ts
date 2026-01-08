@@ -7,10 +7,25 @@ export const exportToCSV = (data: any[], filename: string) => {
     const csvContent = [
         headers.join(","),
         ...data.map(row => headers.map(fieldName => {
-            const value = row[fieldName];
-            return typeof value === 'string' && value.includes(',')
-                ? `"${value}"` // Quote strings with commas
-                : value;
+            let value = row[fieldName];
+
+            // Handle Objects and Arrays (like items or variants)
+            if (typeof value === 'object' && value !== null) {
+                // If it looks like a date (roughly), keep simpler ISO string or just JSON it
+                // But for generic objects, JSON.stringify is safest to avoid [object Object]
+                value = JSON.stringify(value);
+            } else {
+                value = String(value ?? ""); // Handle null/undefined
+            }
+
+            // Escape double quotes by doubling them
+            value = value.replace(/"/g, '""');
+
+            // Quote the field if it contains comma, quote, or newline
+            if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                return `"${value}"`;
+            }
+            return value;
         }).join(","))
     ].join("\n");
 
