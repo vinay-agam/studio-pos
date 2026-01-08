@@ -32,7 +32,7 @@ export default function LoginPage() {
                             <Lock className="h-6 w-6 text-primary" />
                         </div>
                     </div>
-                    <CardTitle className="text-2xl">Studio POS Access</CardTitle>
+                    <CardTitle className="text-2xl">StudioPOS Access</CardTitle>
                     <CardDescription>Enter your PIN to continue</CardDescription>
                 </CardHeader>
                 <CardContent>

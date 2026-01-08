@@ -28,6 +28,8 @@ const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: stri
 
 export default function DashboardLayout() {
     const { user, logout } = useAuth();
+    const location = useLocation();
+    const isPosPage = location.pathname === "/pos";
     return (
         <div className="flex h-screen w-full bg-muted/40 sm:pl-64">
             {/* Sidebar */}
@@ -35,7 +37,7 @@ export default function DashboardLayout() {
                 <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
                     <Link to="/" className="flex items-center gap-2 font-semibold">
                         <Package className="h-6 w-6" />
-                        <span className="">Studio POS</span>
+                        <span className="">StudioPOS</span>
                     </Link>
                 </div>
                 <div className="flex-1 overflow-auto py-2">
@@ -63,14 +65,14 @@ export default function DashboardLayout() {
                     </Button>
                 </div>
                 <div className="mt-auto p-4 flex justify-between items-center border-t">
-                    <span className="text-xs text-muted-foreground">v1.0.0</span>
+                    <span className="font-semibold text-xs text-muted-foreground">StudioPOS - v1.0.0</span>
                     <ThemeToggle />
                 </div>
             </aside>
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center px-6 sticky top-0 z-10 gap-4">
+                <header className="h-16 sm:h-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center px-6 sticky top-0 z-10 gap-4">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button size="icon" variant="outline" className="sm:hidden">
@@ -85,7 +87,7 @@ export default function DashboardLayout() {
                                     className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                                 >
                                     <Package className="h-5 w-5 transition-all group-hover:scale-110" />
-                                    <span className="sr-only">Studio POS</span>
+                                    <span className="sr-only">StudioPOS</span>
                                 </Link>
                                 <Link to="/" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
                                     <LayoutDashboard className="h-5 w-5" />
@@ -114,13 +116,20 @@ export default function DashboardLayout() {
                             </nav>
                         </SheetContent>
                     </Sheet>
-                    <h2 className="text-lg font-semibold">Overview</h2>
+                    <h2 className="text-lg font-semibold sm:hidden">Overview</h2>
                 </header>
 
-                <div className="flex-1 overflow-auto p-6">
+                <div className="flex-1 overflow-auto p-6 sm:p-0 ">
                     <Outlet />
                 </div>
             </main>
+            {/* Static Branding Badge */}
+            {!isPosPage && (
+                <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur border text-xs text-muted-foreground shadow-sm pointer-events-none select-none">
+                    <Package className="h-3 w-3" />
+                    <span className="font-semibold">StudioPOS</span>
+                </div>
+            )}
         </div>
     );
 }

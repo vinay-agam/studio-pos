@@ -15,7 +15,7 @@ export const ReceiptPrinter = React.forwardRef<HTMLDivElement, ReceiptPrinterPro
         <div ref={ref} className="hidden print:block p-8 font-mono text-black">
             {/* Header */}
             <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold">{settings?.storeName || "STUDIO POS"}</h1>
+                <h1 className="text-2xl font-bold">{settings?.storeName || "StudioPOS"}</h1>
                 {settings?.address && <p>{settings.address}</p>}
                 {settings?.email && <p>{settings.email}</p>}
                 {settings?.phone && <p>Tel: {settings.phone}</p>}
