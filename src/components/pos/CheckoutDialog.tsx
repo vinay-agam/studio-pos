@@ -18,7 +18,7 @@ import { ReceiptPrinter } from "./ReceiptPrinter";
 import { useReactToPrint } from "react-to-print";
 
 export function CheckoutDialog({ total, disabled }: { total: number; disabled?: boolean }) {
-    const { items, clearCart, customer, subtotal, discount, discountType, discountValue, tax } = useCart();
+    const { items, clearCart, customer, subtotal, discount, discountType, discountValue, tax, currentOrderId } = useCart();
     const [open, setOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "upi">("cash");
@@ -38,7 +38,7 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
         setIsProcessing(true);
         try {
             const order: Order = {
-                id: crypto.randomUUID(),
+                id: currentOrderId || crypto.randomUUID(),
                 customerId: customer?.id,
                 items: items.map(item => ({
                     sku: item.id,
@@ -58,14 +58,35 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
                 createdAt: new Date().toISOString()
             };
 
-            await db.orders.add(order);
+            await db.orders.put(order);
 
             // Update Inventory
             for (const item of items) {
                 const product = await db.products.get(item.id);
                 if (product) {
+                    let updatedVariants = product.variants;
+                    let newInventory = product.inventory;
+
+                    // If it's a variant item, update the specific variant's inventory
+                    if (item.variantId && product.variants) {
+                        updatedVariants = product.variants.map(v => {
+                            if (v.id === item.variantId) {
+                                const newVariantStock = Math.max(0, v.inventory - item.quantity);
+                                return { ...v, inventory: newVariantStock };
+                            }
+                            return v;
+                        });
+
+                        // Recalculate total inventory based on new variant stock
+                        newInventory = updatedVariants.reduce((sum, v) => sum + v.inventory, 0);
+                    } else {
+                        // Simple product update
+                        newInventory = Math.max(0, product.inventory - item.quantity);
+                    }
+
                     await db.products.update(item.id, {
-                        inventory: Math.max(0, product.inventory - item.quantity)
+                        inventory: newInventory,
+                        variants: updatedVariants
                     });
                 }
             }

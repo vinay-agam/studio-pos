@@ -30,12 +30,15 @@ interface CartContextType {
 
     loadOrder: (order: any) => void;
     saveDraft: () => Promise<void>;
+    currentOrderId: string | null;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
 
+
+    const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
 
     const [items, setItems] = useState<CartItem[]>(() => {
         const saved = localStorage.getItem("cart_items");
@@ -98,6 +101,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         setCustomer(null);
         setDiscountValue(0);
         setDiscountType('amount');
+        setCurrentOrderId(null);
         localStorage.removeItem("cart_items");
     };
 
@@ -126,6 +130,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
         setDiscountValue(order.discountValue || order.discount || 0);
         setDiscountType(order.discountType || 'amount');
+        setCurrentOrderId(order.id);
     };
 
     const subtotal = items.reduce(
@@ -144,8 +149,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     const saveDraft = async () => {
         if (items.length === 0) return;
+        const draftId = currentOrderId || crypto.randomUUID();
         const order: any = {
-            id: crypto.randomUUID(),
+            id: draftId,
             customerId: customer?.id,
             items: items.map(item => ({
                 sku: item.id,
@@ -163,7 +169,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             status: "draft",
             createdAt: new Date().toISOString()
         };
-        await db.orders.add(order);
+        await db.orders.put(order); // Put handles add or update
+        setCurrentOrderId(draftId);
         clearCart();
     };
 
@@ -187,12 +194,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                 tax,
                 total,
                 loadOrder,
-                saveDraft
+                saveDraft,
+                currentOrderId
             }}
         >
             {children}
         </CartContext.Provider>
     );
+
 }
 
 export function useCart() {

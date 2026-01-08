@@ -1,5 +1,4 @@
-// import { useState } from "react";
-// Removed unused import
+import { useState } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, type Order } from "@/db/db";
 import { useCart } from "@/context/CartContext";
@@ -16,17 +15,18 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { PlayCircle, Eye } from "lucide-react";
+import { OrderDetailsDialog } from "@/components/orders/OrderDetailsDialog";
 
 export default function OrdersPage() {
     const navigate = useNavigate();
     const { loadOrder } = useCart();
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     // Fetch all orders
     const orders = useLiveQuery(() => db.orders.orderBy('createdAt').reverse().toArray()) || [];
 
     const drafts = orders.filter(o => o.status === 'draft');
     const completed = orders.filter(o => o.status === 'completed');
-    // const cancelled = orders.filter(o => o.status === 'cancelled');
 
     const handleResumeDraft = (order: Order) => {
         if (confirm("Resume this draft? This will replace your current cart.")) {
@@ -91,7 +91,9 @@ export default function OrdersPage() {
                             <Button size="sm" onClick={() => handleResumeDraft(order)}>
                                 <PlayCircle className="mr-2 h-4 w-4" /> Resume
                             </Button> :
-                            <Badge variant="outline" className="capitalize">{order.status}</Badge>
+                            <Button size="sm" variant="ghost" onClick={() => setSelectedOrder(order)}>
+                                <Eye className="mr-2 h-4 w-4" /> View
+                            </Button>
                     )} />
                 </TabsContent>
 
@@ -104,13 +106,21 @@ export default function OrdersPage() {
                 </TabsContent>
 
                 <TabsContent value="completed" className="mt-4">
-                    <OrderTable data={completed} actions={() => (
-                        <Button size="sm" variant="ghost">
+                    <OrderTable data={completed} actions={(order) => (
+                        <Button size="sm" variant="ghost" onClick={() => setSelectedOrder(order)}>
                             <Eye className="mr-2 h-4 w-4" /> View
                         </Button>
                     )} />
                 </TabsContent>
             </Tabs>
+
+            {selectedOrder && (
+                <OrderDetailsDialog
+                    order={selectedOrder}
+                    open={!!selectedOrder}
+                    onOpenChange={(open) => !open && setSelectedOrder(null)}
+                />
+            )}
         </div>
     );
 }

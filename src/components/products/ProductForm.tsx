@@ -125,12 +125,16 @@ export function ProductForm({ productId }: ProductFormProps) {
 
     const onSubmit: SubmitHandler<ProductFormValues> = async (data) => {
         try {
+            const calculatedInventory = productType === 'variable'
+                ? variants.reduce((sum, v) => sum + (v.inventory || 0), 0)
+                : data.inventory;
+
             const productData: Product = {
                 id: data.sku,
                 title: data.title,
                 category: data.category || "General",
                 price: data.price,
-                inventory: data.inventory,
+                inventory: calculatedInventory,
                 tax: 0, // Default for now
                 description: data.description,
                 imageId: imageId,
