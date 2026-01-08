@@ -12,12 +12,33 @@ import { Loader2, Download, AlertTriangle, FileSpreadsheet } from "lucide-react"
 export default function SettingsPage() {
     const [isRestoring, setIsRestoring] = useState(false);
     const [backupNeeded, setBackupNeeded] = useState(false);
+    const [settings, setSettings] = useState<any>({});
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (checkAndRunAutoBackup()) {
             setBackupNeeded(true);
         }
+        // Load Settings
+        db.settings.get('general').then(data => {
+            if (data) setSettings(data);
+        });
     }, []);
+
+    const handleSaveSettings = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+        try {
+            await db.settings.put({ ...settings, id: 'general' });
+            alert("Settings saved successfully! The page will reload to apply changes.");
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            alert("Failed to save settings");
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleBackup = async () => {
         try {
@@ -70,6 +91,69 @@ export default function SettingsPage() {
                     </AlertDescription>
                 </Alert>
             )}
+
+            {/* Shop Details */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Shop Details</CardTitle>
+                    <CardDescription>
+                        Manage your store's receipt details and tax settings.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSaveSettings} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="storeName">Store Name</Label>
+                                <Input
+                                    id="storeName"
+                                    value={settings.storeName || ''}
+                                    onChange={e => setSettings({ ...settings, storeName: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={settings.email || ''}
+                                    onChange={e => setSettings({ ...settings, email: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone</Label>
+                                <Input
+                                    id="phone"
+                                    value={settings.phone || ''}
+                                    onChange={e => setSettings({ ...settings, phone: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="taxRate">Tax Rate (decimal, e.g., 0.18 for 18%)</Label>
+                                <Input
+                                    id="taxRate"
+                                    type="number"
+                                    step="0.01"
+                                    value={settings.taxRate || 0}
+                                    onChange={e => setSettings({ ...settings, taxRate: parseFloat(e.target.value) })}
+                                />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="address">Address</Label>
+                                <Input
+                                    id="address"
+                                    value={settings.address || ''}
+                                    onChange={e => setSettings({ ...settings, address: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <Button type="submit" disabled={isSaving}>
+                            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Save Changes
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
 
             {/* Data Management */}
             <h2 className="text-xl font-semibold mt-8 mb-4">Data Management</h2>

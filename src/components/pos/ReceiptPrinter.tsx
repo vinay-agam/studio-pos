@@ -1,5 +1,6 @@
 import React from "react";
-import { type Customer, type Order } from "@/db/db";
+import { type Customer, type Order, type Settings, db } from "@/db/db";
+import { useLiveQuery } from "dexie-react-hooks";
 
 interface ReceiptPrinterProps {
     order: Order;
@@ -8,14 +9,16 @@ interface ReceiptPrinterProps {
 
 // Ensure you export this component so other files can import it
 export const ReceiptPrinter = React.forwardRef<HTMLDivElement, ReceiptPrinterProps>(({ order, customer }, ref) => {
+    const settings = useLiveQuery(() => db.settings.get('general')) as Settings | undefined;
+
     return (
         <div ref={ref} className="hidden print:block p-8 font-mono text-black">
             {/* Header */}
             <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold">STUDIO POS</h1>
-                <p>123 Creative Studio Lane</p>
-                <p>Photography & Art Services</p>
-                <p>Tel: (555) 123-4567</p>
+                <h1 className="text-2xl font-bold">{settings?.storeName || "STUDIO POS"}</h1>
+                {settings?.address && <p>{settings.address}</p>}
+                {settings?.email && <p>{settings.email}</p>}
+                {settings?.phone && <p>Tel: {settings.phone}</p>}
             </div>
 
             {/* Order Info */}
