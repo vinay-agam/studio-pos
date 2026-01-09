@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, type Product } from "@/db/db";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCart } from "@/context/CartContext";
-import { Search, Image as ImageIcon } from "lucide-react";
+import { Search, Image as ImageIcon, Filter } from "lucide-react";
 import { imageService } from "@/services/imageService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Helper component for thumbnail (reused logic, could be extracted)
 const ProductThumbnail = ({ imageId }: { imageId?: string }) => {
@@ -27,19 +28,40 @@ const ProductThumbnail = ({ imageId }: { imageId?: string }) => {
 export function ProductGrid() {
     const { addToCart } = useCart();
     const [search, setSearch] = useState("");
+    const [categoryFilter, setCategoryFilter] = useState<string>("all");
+    const [typeFilter, setTypeFilter] = useState<string>("all");
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isVariantDialogOpen, setIsVariantDialogOpen] = useState(false);
 
-    const products = useLiveQuery(async () => {
-        const all = await db.products.toArray();
-        if (!search) return all;
-        const lower = search.toLowerCase();
-        return all.filter(p =>
-            p.title.toLowerCase().includes(lower) ||
-            p.id.toLowerCase().includes(lower) ||
-            (p.category && p.category.toLowerCase().includes(lower))
-        );
-    }, [search]) || [];
+    const allProducts = useLiveQuery(async () => db.products.toArray()) || [];
+
+    const categories = useMemo(() => {
+        const unique = new Set(allProducts.map(p => p.category).filter(Boolean));
+        return Array.from(unique).sort();
+    }, [allProducts]);
+
+    const filteredProducts = useMemo(() => {
+        let result = allProducts;
+
+        if (search) {
+            const lower = search.toLowerCase();
+            result = result.filter(p =>
+                p.title.toLowerCase().includes(lower) ||
+                p.id.toLowerCase().includes(lower) ||
+                (p.category && p.category.toLowerCase().includes(lower))
+            );
+        }
+
+        if (categoryFilter !== "all") {
+            result = result.filter(p => p.category === categoryFilter);
+        }
+
+        if (typeFilter !== "all") {
+            result = result.filter(p => p.type === typeFilter);
+        }
+
+        return result;
+    }, [allProducts, search, categoryFilter, typeFilter]);
 
     const handleProductClick = (product: Product) => {
         if (product.type === 'variable' && product.variants && product.variants.length > 0) {
@@ -65,19 +87,42 @@ export function ProductGrid() {
 
     return (
         <div className="flex flex-col h-full gap-4 p-4">
-            <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                    type="search"
-                    placeholder="Search by name, SKU, or category..."
-                    className="pl-8"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+            <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search by name, SKU..."
+                        className="pl-8"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <SelectTrigger className="w-full sm:w-[160px]">
+                        <SelectValue placeholder="All Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {categories.map(cat => (
+                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                    <SelectTrigger className="w-full sm:w-[140px]">
+                        <SelectValue placeholder="All Types" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Types</SelectItem>
+                        <SelectItem value="simple">Single</SelectItem>
+                        <SelectItem value="variable">Variable</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pb-20">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                     <Card
                         key={product.id}
                         className="cursor-pointer hover:border-primary transition-colors flex flex-col justify-between"
@@ -97,7 +142,7 @@ export function ProductGrid() {
                         </CardFooter>
                     </Card>
                 ))}
-                {products.length === 0 && (
+                {filteredProducts.length === 0 && (
                     <div className="col-span-full text-center text-muted-foreground py-10">
                         No products found.
                     </div>
