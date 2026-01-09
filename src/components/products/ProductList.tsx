@@ -22,7 +22,9 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Edit, Trash2, Plus, Image as ImageIcon } from "lucide-react";
+import { Edit, Trash2, Plus, Image as ImageIcon, Upload, Download } from "lucide-react";
+import { parseProductExcel, generateProductTemplate } from "@/lib/excelService";
+import { useRef } from "react";
 
 // Image Thumbnail Component
 const ProductThumbnail = ({ imageId }: { imageId?: string }) => {
@@ -50,6 +52,33 @@ export function ProductList() {
             await db.products.delete(id);
         }
     }
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const products = await parseProductExcel(file);
+            console.log("Parsed products:", products);
+
+            if (products.length === 0) {
+                alert("No valid products found in the file.");
+                return;
+            }
+
+            // Bulk add/update to Dexie
+            await db.products.bulkPut(products);
+            alert(`Successfully imported ${products.length} products!`);
+
+            // Clear input
+            if (fileInputRef.current) fileInputRef.current.value = "";
+        } catch (error) {
+            console.error("Import failed:", error);
+            alert("Failed to import products. Check console for details.");
+        }
+    };
 
     const columns: ColumnDef<Product>[] = [
         {
@@ -136,6 +165,23 @@ export function ProductList() {
                     <Button onClick={() => navigate("/products/new")}>
                         <Plus className="mr-2 h-4 w-4" /> Add Product
                     </Button>
+                )}
+                {canEdit && (
+                    <div className="flex gap-2">
+                        <input
+                            type="file"
+                            accept=".xlsx, .xls"
+                            className="hidden"
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                        />
+                        <Button variant="outline" onClick={() => generateProductTemplate()}>
+                            <Download className="mr-2 h-4 w-4" /> Template
+                        </Button>
+                        <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="mr-2 h-4 w-4" /> Import Excel
+                        </Button>
+                    </div>
                 )}
             </div>
             <div className="rounded-md border">
