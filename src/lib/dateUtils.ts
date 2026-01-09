@@ -42,7 +42,8 @@ export function getDateRange(type: DateRangeType, customStart?: string, customEn
             break;
         case 'custom':
             if (customStart) {
-                const s = new Date(customStart);
+                const [y, m, d] = customStart.split('-').map(Number);
+                const s = new Date(y, m - 1, d);
                 s.setHours(0, 0, 0, 0);
                 // Check if valid
                 if (!isNaN(s.getTime())) {
@@ -50,7 +51,8 @@ export function getDateRange(type: DateRangeType, customStart?: string, customEn
                 }
             }
             if (customEnd) {
-                const e = new Date(customEnd);
+                const [y, m, d] = customEnd.split('-').map(Number);
+                const e = new Date(y, m - 1, d);
                 e.setHours(23, 59, 59, 999);
                 if (!isNaN(e.getTime())) {
                     end.setTime(e.getTime());

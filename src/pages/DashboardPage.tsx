@@ -47,14 +47,31 @@ export default function DashboardPage() {
             const d = new Date(start);
             d.setDate(d.getDate() + i);
             if (d > end) return null;
-            return d.toISOString().split("T")[0];
+            // Use local date string YYYY-MM-DD
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }).filter(d => d !== null) as string[];
 
-        const salesData = chartDataPoints.map(date => {
-            const daysOrders = orders.filter(o => o.createdAt.startsWith(date) && o.status !== 'cancelled');
+        const salesData = chartDataPoints.map(dateStr => {
+            // Create bounds for this specific day using local time
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const dayStart = new Date(y, m - 1, d);
+            dayStart.setHours(0, 0, 0, 0);
+
+            const dayEnd = new Date(y, m - 1, d);
+            dayEnd.setHours(23, 59, 59, 999);
+
+            const daysOrders = orders.filter(o => {
+                if (o.status === 'cancelled') return false;
+                const oDate = new Date(o.createdAt);
+                return oDate >= dayStart && oDate <= dayEnd;
+            });
+
             const sales = daysOrders.reduce((sum, o) => sum + o.total, 0);
             return {
-                date: new Date(date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
+                date: dayStart.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }),
                 sales: sales
             };
         });
