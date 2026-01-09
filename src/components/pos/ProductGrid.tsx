@@ -4,7 +4,7 @@ import { db, type Product } from "@/db/db";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCart } from "@/context/CartContext";
-import { Search, Image as ImageIcon, Filter } from "lucide-react";
+import { Search, Image as ImageIcon } from "lucide-react";
 import { imageService } from "@/services/imageService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
