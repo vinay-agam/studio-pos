@@ -112,7 +112,7 @@ export function ProductGrid() {
                             {selectedProduct?.title}
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
+                    <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
                         {selectedProduct?.variants?.map(variant => (
                             <Button key={variant.id} variant="outline" className="justify-between h-auto py-3" onClick={() => handleVariantSelect(variant.id)}>
                                 <span>{variant.title}</span>
