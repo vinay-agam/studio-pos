@@ -1,27 +1,30 @@
+import * as React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, ShoppingCart, Package, Users, Settings, Image, LogOut, Menu, ClipboardList } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, Users, Settings, Image, LogOut, Menu, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 
-const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => {
+const NavItem = ({ to, icon: Icon, label, isCollapsed }: { to: string; icon: any; label: string; isCollapsed?: boolean }) => {
     const location = useLocation();
     const isActive = location.pathname === to;
 
     return (
         <Link
             to={to}
+            title={isCollapsed ? label : undefined}
             className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md transition-all text-sm font-medium",
+                "flex items-center gap-3 rounded-md transition-all text-sm font-medium",
+                isCollapsed ? "justify-center px-0 py-3" : "px-3 py-2",
                 isActive
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
         >
             <Icon className="h-4 w-4" />
-            {label}
+            {!isCollapsed && label}
         </Link>
     );
 };
@@ -29,49 +32,72 @@ const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: stri
 export default function DashboardLayout() {
     const { user, logout } = useAuth();
     const location = useLocation();
+    const [isCollapsed, setIsCollapsed] = React.useState(false);
     const isPosPage = location.pathname === "/pos";
+
     return (
-        <div className="flex h-screen w-full bg-muted/40 sm:pl-64">
+        <div className={cn("flex h-screen w-full bg-muted/40", isCollapsed ? "sm:pl-16" : "sm:pl-64", "transition-[padding] duration-300 ease-in-out")}>
             {/* Sidebar */}
-            <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 flex-col border-r bg-background sm:flex">
-                <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+            <aside className={cn(
+                "fixed inset-y-0 left-0 z-10 hidden flex-col border-r bg-background sm:flex transition-[width] duration-300 ease-in-out",
+                isCollapsed ? "w-16" : "w-64"
+            )}>
+                <div className={cn("flex h-14 items-center border-b lg:h-[60px]", isCollapsed ? "justify-center px-0" : "px-4 lg:px-6")}>
                     <Link to="/" className="flex items-center gap-2 font-semibold">
                         <Package className="h-6 w-6" />
-                        <span className="">StudioPOS</span>
+                        <span className={cn("transition-all duration-300", isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100")}>StudioPOS</span>
                     </Link>
                 </div>
                 <div className="flex-1 overflow-auto py-2">
-                    <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-                        <NavItem to="/" icon={LayoutDashboard} label="Dashboard" />
-                        <NavItem to="/pos" icon={ShoppingCart} label="POS Terminal" />
-                        <NavItem to="/orders" icon={ClipboardList} label="Orders" />
-                        <NavItem to="/products" icon={Image} label="Products" />
-                        <NavItem to="/customers" icon={Users} label="Customers" />
-                        <NavItem to="/settings" icon={Settings} label="Settings" />
+                    <nav className={cn("grid items-start px-2 text-sm font-medium", isCollapsed ? "px-2" : "lg:px-4")}>
+                        <NavItem to="/" icon={LayoutDashboard} label="Dashboard" isCollapsed={isCollapsed} />
+                        <NavItem to="/pos" icon={ShoppingCart} label="POS Terminal" isCollapsed={isCollapsed} />
+                        <NavItem to="/orders" icon={ClipboardList} label="Orders" isCollapsed={isCollapsed} />
+                        <NavItem to="/products" icon={Image} label="Products" isCollapsed={isCollapsed} />
+                        <NavItem to="/customers" icon={Users} label="Customers" isCollapsed={isCollapsed} />
+                        <NavItem to="/settings" icon={Settings} label="Settings" isCollapsed={isCollapsed} />
                     </nav>
                 </div>
                 <div className="p-4 border-t space-y-4">
-                    <div className="flex items-center gap-3 px-2">
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                            {user?.name.charAt(0)}
+                    {!isCollapsed && (
+                        <div className="flex items-center gap-3 px-2 transition-all duration-300 fade-in">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                                {user?.name.charAt(0)}
+                            </div>
+                            <div className="flex flex-col text-sm overflow-hidden whitespace-nowrap">
+                                <span className="font-medium truncate">{user?.name}</span>
+                                <span className="text-xs text-muted-foreground capitalize truncate">{user?.role}</span>
+                            </div>
                         </div>
-                        <div className="flex flex-col text-sm">
-                            <span className="font-medium">{user?.name}</span>
-                            <span className="text-xs text-muted-foreground capitalize">{user?.role}</span>
-                        </div>
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full justify-start" onClick={logout}>
-                        <LogOut className="mr-2 h-4 w-4" /> Logout
+                    )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn("w-full mb-2", isCollapsed ? "justify-center px-0" : "justify-start")}
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                    >
+                        {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4 mr-2" />}
+                        {!isCollapsed && "Collapse"}
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn("w-full", isCollapsed ? "justify-center px-0" : "justify-start")}
+                        onClick={logout}
+                        title="Logout"
+                    >
+                        <LogOut className={cn("h-4 w-4", !isCollapsed && "mr-2")} />
+                        {!isCollapsed && "Logout"}
                     </Button>
                 </div>
-                <div className="mt-auto p-4 flex justify-between items-center border-t">
-                    <span className="font-semibold text-xs text-muted-foreground">StudioPOS - v1.0.0</span>
+                <div className={cn("mt-auto p-4 flex items-center border-t", isCollapsed ? "flex-col gap-4 justify-center" : "justify-between")}>
+                    {!isCollapsed && <span className="font-semibold text-xs text-muted-foreground whitespace-nowrap">v1.0.0</span>}
                     <ThemeToggle />
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <main className="flex-1 flex flex-col min-w-0 overflow-hidden transition-all duration-300">
                 <header className="h-16 sm:h-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center px-6 sticky top-0 z-10 gap-4">
                     <Sheet>
                         <SheetTrigger asChild>
@@ -120,11 +146,10 @@ export default function DashboardLayout() {
                 </header>
 
                 <div
-                    className={`flex-1 overflow-auto ${
-                        !isPosPage ? 'p-6' : 'p-6 sm:p-0 sm:overflow-hidden'
-                    }`}
+                    className={`flex-1 overflow-auto ${!isPosPage ? 'p-6' : 'p-6 sm:p-0 sm:overflow-hidden'
+                        }`}
                 >
-                <Outlet />
+                    <Outlet />
                 </div>
             </main>
             {/* Static Branding Badge */}
