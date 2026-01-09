@@ -38,7 +38,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-3xl">
+            <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>Order Details #{order.id.slice(0, 8)}</DialogTitle>
                     <DialogDescription>
@@ -46,7 +46,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid gap-6 py-4">
+                <div className="grid gap-6 py-4 flex-1 overflow-y-auto px-1">
                     {/* Customer Info */}
                     {customer && (
                         <div className="p-4 bg-muted rounded-md">
@@ -110,7 +110,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                     </div>
                 </div>
 
-                <DialogFooter className="flex justify-between sm:justify-between items-center bg-gray-50 -mx-6 -mb-6 p-6 rounded-b-lg">
+                <DialogFooter className="flex justify-between sm:justify-between items-center bg-muted -mx-6 -mb-6 p-6 rounded-b-lg">
                     <div className="text-xs text-muted-foreground">
                         Payment Method: <span className="uppercase font-bold">{order.paymentMethod || 'Unknown'}</span>
                     </div>
