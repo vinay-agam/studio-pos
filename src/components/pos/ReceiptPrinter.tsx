@@ -32,11 +32,12 @@ export const ReceiptPrinter = React.forwardRef<HTMLDivElement, ReceiptPrinterPro
                     <span>{new Date(order.createdAt).toLocaleString()}</span>
                 </div>
                 {customer && (
-                    <div className="mt-4 border-t pt-2">
-                        <p className="font-bold">Customer:</p>
-                        <p>{customer.name}</p>
-                        <p>{customer.phone}</p>
-                        <p>{customer.email}</p>
+                    <div className="mt-4 border-t pt-2 border-dashed">
+                        <p className="font-bold uppercase text-xs text-gray-500 mb-1">Customer</p>
+                        <div className="flex justify-between">
+                            <p className="font-bold">{customer.name}</p>
+                            {customer.phone && <p>Ph: {customer.phone}</p>}
+                        </div>
                     </div>
                 )}
             </div>
@@ -67,7 +68,21 @@ export const ReceiptPrinter = React.forwardRef<HTMLDivElement, ReceiptPrinterPro
 
             {/* Totals */}
             <div className="border-t pt-4 space-y-2">
-                <div className="flex justify-between font-bold text-xl">
+                <div className="flex justify-between text-sm">
+                    <span>Subtotal</span>
+                    <span>₹{order.subtotal.toFixed(2)}</span>
+                </div>
+                {order.discount > 0 && (
+                    <div className="flex justify-between text-sm">
+                        <span>Discount</span>
+                        <span>-₹{order.discount.toFixed(2)}</span>
+                    </div>
+                )}
+                <div className="flex justify-between text-sm">
+                    <span>Tax</span>
+                    <span>₹{order.tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between font-bold text-xl border-t pt-2 mt-2">
                     <span>Total</span>
                     <span>₹{order.total.toFixed(2)}</span>
                 </div>

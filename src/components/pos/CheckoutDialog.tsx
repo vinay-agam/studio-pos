@@ -25,6 +25,8 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
     const [amountTendered, setAmountTendered] = useState("");
     const [lastOrder, setLastOrder] = useState<Order | null>(null);
 
+    const [lastCustomer, setLastCustomer] = useState<typeof customer>(null);
+
     const printerRef = useRef<HTMLDivElement>(null);
     const handlePrint = useReactToPrint({
         contentRef: printerRef,
@@ -92,6 +94,7 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
             }
 
             setLastOrder(order); // Save for printing
+            setLastCustomer(customer); // Persist customer for printing
             clearCart();
             // Don't close immediately, allow printing
         } catch (error) {
@@ -104,6 +107,7 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
     const handleClose = () => {
         setOpen(false);
         setLastOrder(null);
+        setLastCustomer(null);
         setAmountTendered("");
         setIsProcessing(false);
         setPaymentMethod("cash");
@@ -196,13 +200,21 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
                             <DialogDescription className="text-center">
                                 Payment processed via <span className="uppercase font-bold">{lastOrder.paymentMethod}</span>.
                             </DialogDescription>
+                            {lastCustomer && (
+                                <div className="mt-4 p-4 bg-muted/50 rounded-lg text-left text-sm space-y-1">
+                                    <p className="font-semibold text-foreground">Customer Details:</p>
+                                    <p>{lastCustomer.name}</p>
+                                    <p>{lastCustomer.phone}</p>
+                                    {lastCustomer.email && <p>{lastCustomer.email}</p>}
+                                </div>
+                            )}
                         </DialogHeader>
                         <div className="flex flex-col gap-3 py-4">
                             <Button variant="outline" size="lg" className="w-full" onClick={() => handlePrint()}>
                                 <Printer className="mr-2 h-4 w-4" /> Print Receipt / Ticket
                             </Button>
                             <div className="hidden">
-                                <ReceiptPrinter ref={printerRef} order={lastOrder} customer={customer} />
+                                <ReceiptPrinter ref={printerRef} order={lastOrder} customer={lastCustomer} />
                             </div>
                         </div>
                         <DialogFooter>
@@ -214,3 +226,4 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
         </Dialog>
     );
 }
+
