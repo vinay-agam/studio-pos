@@ -3,9 +3,9 @@ import { ProductGrid } from "@/components/pos/ProductGrid";
 
 export default function POSPage() {
     return (
-        <div className="flex h-screen w-full bg-background overflow-none">
+        <div className="flex h-screen w-full bg-background overflow-hidden">
             {/* Left Side: Product Grid */}
-            <div className="flex-1 h-full overflow-none">
+            <div className="flex-1 h-full overflow-hidden">
                 <ProductGrid />
             </div>
 

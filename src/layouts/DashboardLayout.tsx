@@ -121,7 +121,7 @@ export default function DashboardLayout() {
 
                 <div
                     className={`flex-1 overflow-auto ${
-                        !isPosPage ? 'p-6' : 'p-6 sm:p-0'
+                        !isPosPage ? 'p-6' : 'p-6 sm:p-0 sm:overflow-hidden'
                     }`}
                 >
                 <Outlet />

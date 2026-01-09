@@ -36,11 +36,11 @@ export default function OrdersPage() {
     };
 
     const OrderTable = ({ data, actions }: { data: Order[], actions?: (order: Order) => React.ReactNode }) => (
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Date</TableHead>
+                        <TableHead className="whitespace-nowrap">Date</TableHead>
                         <TableHead>Order ID</TableHead>
                         <TableHead>Details</TableHead>
                         <TableHead>Total</TableHead>
@@ -50,14 +50,24 @@ export default function OrdersPage() {
                 <TableBody>
                     {data.map(order => (
                         <TableRow key={order.id}>
-                            <TableCell>{new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}</TableCell>
-                            <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
-                            <TableCell>
-                                {order.items.length} Items
-                                {order.customerId && <div className="text-xs text-muted-foreground">Cust: {order.customerId}</div>}
+                            <TableCell className="whitespace-nowrap">
+                                {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}
+                            </TableCell>
+                            <TableCell className="font-mono text-xs max-w-[100px] truncate" title={order.id}>
+                                {order.id.slice(0, 8)}...
+                            </TableCell>
+                            <TableCell className="max-w-[200px]">
+                                <div className="truncate">
+                                    {order.items.length} Items
+                                </div>
+                                {order.customerId && (
+                                    <div className="text-xs text-muted-foreground truncate" title={`Cust: ${order.customerId}`}>
+                                        Cust: {order.customerId}
+                                    </div>
+                                )}
                             </TableCell>
                             <TableCell>₹{order.total.toFixed(2)}</TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-right whitespace-nowrap">
                                 {actions ? actions(order) : null}
                             </TableCell>
                         </TableRow>

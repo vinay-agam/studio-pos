@@ -85,7 +85,7 @@ export function ProductGrid() {
                     >
                         <CardHeader className="p-4 pb-2">
                             <ProductThumbnail imageId={product.imageId} />
-                            <CardTitle className="text-base line-clamp-2">{product.title}</CardTitle>
+                            <CardTitle className="text-base line-clamp-2 break-words" title={product.title}>{product.title}</CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 pt-0 text-sm text-muted-foreground">
                             SKU: {product.id}

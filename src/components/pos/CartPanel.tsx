@@ -48,7 +48,7 @@ export function CartPanel() {
                 {items.map((item) => (
                     <div key={`${item.id}-${item.variantId || 'base'}`} className="flex gap-3 items-start">
                         <div className="flex-1 space-y-1">
-                            <h4 className="font-medium text-sm line-clamp-2">
+                            <h4 className="font-medium text-sm line-clamp-2 break-words" title={item.title}>
                                 {item.title}
                                 {item.variantName && <span className="text-muted-foreground ml-1">({item.variantName})</span>}
                             </h4>

@@ -54,13 +54,13 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                             <div className="text-sm grid grid-cols-2 gap-2">
                                 <div><span className="font-medium">Name:</span> {customer.name}</div>
                                 <div><span className="font-medium">Phone:</span> {customer.phone}</div>
-                                <div className="col-span-2"><span className="font-medium">Email:</span> {customer.email}</div>
+                                <div className="col-span-2 truncate" title={customer.email}><span className="font-medium">Email:</span> {customer.email}</div>
                             </div>
                         </div>
                     )}
 
                     {/* Order Items */}
-                    <div className="border rounded-md">
+                    <div className="border rounded-md overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead className="bg-muted">
                                 <tr>
@@ -73,14 +73,14 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                             <tbody>
                                 {order.items.map((item, idx) => (
                                     <tr key={idx} className="border-t">
-                                        <td className="p-2">
-                                            <div className="font-medium">{item.title}</div>
-                                            {item.variantName && <div className="text-xs text-muted-foreground">Option: {item.variantName}</div>}
-                                            <div className="text-xs text-muted-foreground">{item.sku}</div>
+                                        <td className="p-2 max-w-[200px]">
+                                            <div className="font-medium truncate" title={item.title}>{item.title}</div>
+                                            {item.variantName && <div className="text-xs text-muted-foreground truncate" title={item.variantName}>Option: {item.variantName}</div>}
+                                            <div className="text-xs text-muted-foreground truncate">{item.sku}</div>
                                         </td>
-                                        <td className="p-2 text-center">{item.qty}</td>
-                                        <td className="p-2 text-right">₹{item.price.toFixed(2)}</td>
-                                        <td className="p-2 text-right font-medium">₹{(item.price * item.qty).toFixed(2)}</td>
+                                        <td className="p-2 text-center whitespace-nowrap">{item.qty}</td>
+                                        <td className="p-2 text-right whitespace-nowrap">₹{item.price.toFixed(2)}</td>
+                                        <td className="p-2 text-right font-medium whitespace-nowrap">₹{(item.price * item.qty).toFixed(2)}</td>
                                     </tr>
                                 ))}
                             </tbody>
