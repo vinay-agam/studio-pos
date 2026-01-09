@@ -5,6 +5,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db, type Product } from "@/db/db";
 import { imageService } from "@/services/imageService";
 import { useState, useEffect } from "react";
+import { useAlert } from "@/context/AlertContext";
 import { Button } from "@/components/ui/button";
 import {
     Form,
@@ -36,6 +37,7 @@ interface ProductFormProps {
 
 export function ProductForm({ productId }: ProductFormProps) {
     const navigate = useNavigate();
+    const { alert } = useAlert();
     const [imageId, setImageId] = useState<string | undefined>(undefined);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
@@ -94,9 +96,10 @@ export function ProductForm({ productId }: ProductFormProps) {
             setImageId(id);
             const url = await imageService.getImageUrl(id);
             setImageUrl(url);
+
         } catch (err) {
             console.error(err);
-            alert("Failed to upload image");
+            await alert("Failed to upload image", "Upload Error");
         } finally {
             setIsUploading(false);
         }
@@ -146,7 +149,8 @@ export function ProductForm({ productId }: ProductFormProps) {
             navigate("/products");
         } catch (error) {
             console.error("Failed to save product:", error);
-            alert("Failed to save product. Ensure SKU is unique.");
+
+            await alert("Failed to save product. Ensure SKU is unique.", "Save Error");
         }
     };
 

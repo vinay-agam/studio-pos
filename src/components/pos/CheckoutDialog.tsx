@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useAlert } from "@/context/AlertContext";
 import {
     Dialog,
     DialogContent,
@@ -19,6 +20,7 @@ import { useReactToPrint } from "react-to-print";
 
 export function CheckoutDialog({ total, disabled }: { total: number; disabled?: boolean }) {
     const { items, clearCart, customer, subtotal, discount, discountType, discountValue, tax, currentOrderId } = useCart();
+    const { alert } = useAlert();
     const [open, setOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "upi">("cash");
@@ -98,8 +100,9 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
             clearCart();
             // Don't close immediately, allow printing
         } catch (error) {
+
             console.error("Checkout failed:", error);
-            alert("Checkout failed. Please try again.");
+            await alert("Checkout failed. Please try again.", "Error");
             setIsProcessing(false); // Only reset if failed
         }
     };

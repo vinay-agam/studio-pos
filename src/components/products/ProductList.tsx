@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAlert } from "@/context/AlertContext";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, type Product } from "@/db/db";
 import { useNavigate } from "react-router-dom";
@@ -46,9 +47,10 @@ export function ProductList() {
     const navigate = useNavigate();
     const { user } = useAuth();
     const canEdit = user?.role === 'admin' || user?.role === 'manager';
+    const { alert, confirm } = useAlert();
 
     const handleDelete = async (id: string) => {
-        if (confirm("Are you sure you want to delete this product?")) {
+        if (await confirm("Are you sure you want to delete this product?", "Delete Product", "destructive")) {
             await db.products.delete(id);
         }
     }
@@ -64,19 +66,20 @@ export function ProductList() {
             console.log("Parsed products:", products);
 
             if (products.length === 0) {
-                alert("No valid products found in the file.");
+                await alert("No valid products found in the file.", "Import Error");
                 return;
             }
 
             // Bulk add/update to Dexie
             await db.products.bulkPut(products);
-            alert(`Successfully imported ${products.length} products!`);
+            await alert(`Successfully imported ${products.length} products!`, "Import Success");
 
             // Clear input
             if (fileInputRef.current) fileInputRef.current.value = "";
+
         } catch (error) {
             console.error("Import failed:", error);
-            alert("Failed to import products. Check console for details.");
+            await alert("Failed to import products. Check console for details.", "Import Failed");
         }
     };
 

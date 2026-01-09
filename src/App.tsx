@@ -6,6 +6,7 @@ import ProductsPage from "@/pages/ProductsPage";
 // import { db } from "@/db/db";
 
 import { CartProvider } from "@/context/CartContext";
+import { AlertProvider } from "@/context/AlertContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import DashboardPage from "@/pages/DashboardPage";
 import POSPage from "@/pages/POSPage";
@@ -26,26 +27,28 @@ function App() {
     <HashRouter>
       <AuthProvider>
         <CartProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<DashboardPage />} />
-              <Route path="products/*" element={<ProductsPage />} />
-              <Route path="customers" element={<CustomersPage />} />
-              <Route path="orders" element={<OrdersPage />} />
-              <Route path="pos" element={<POSPage />} />
-              <Route path="settings" element={
-                <RoleGuard allowedRoles={['admin', 'manager']}>
-                  <SettingsPage />
-                </RoleGuard>
-              } />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
+          <AlertProvider>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<DashboardPage />} />
+                <Route path="products/*" element={<ProductsPage />} />
+                <Route path="customers" element={<CustomersPage />} />
+                <Route path="orders" element={<OrdersPage />} />
+                <Route path="pos" element={<POSPage />} />
+                <Route path="settings" element={
+                  <RoleGuard allowedRoles={['admin', 'manager']}>
+                    <SettingsPage />
+                  </RoleGuard>
+                } />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
+            </Routes>
+          </AlertProvider>
         </CartProvider>
       </AuthProvider>
     </HashRouter>

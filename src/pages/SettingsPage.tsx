@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAlert } from "@/context/AlertContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { Loader2, Download, AlertTriangle, FileSpreadsheet } from "lucide-react"
 export default function SettingsPage() {
     const [isRestoring, setIsRestoring] = useState(false);
     const [backupNeeded, setBackupNeeded] = useState(false);
+    const { alert, confirm } = useAlert();
     const [settings, setSettings] = useState<any>({});
     const [isSaving, setIsSaving] = useState(false);
 
@@ -30,11 +32,11 @@ export default function SettingsPage() {
         setIsSaving(true);
         try {
             await db.settings.put({ ...settings, id: 'general' });
-            alert("Settings saved successfully! The page will reload to apply changes.");
+            await alert("Settings saved successfully! The page will reload to apply changes.", "Success");
             window.location.reload();
         } catch (err) {
             console.error(err);
-            alert("Failed to save settings");
+            await alert("Failed to save settings", "Error");
         } finally {
             setIsSaving(false);
         }
@@ -46,7 +48,7 @@ export default function SettingsPage() {
             setBackupNeeded(false);
         } catch (error) {
             console.error("Backup failed", error);
-            alert("Backup failed. See console for details.");
+            await alert("Backup failed. See console for details.", "Error");
         }
     };
 
@@ -54,7 +56,7 @@ export default function SettingsPage() {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        if (!confirm("WARNING: This will replace ALL current data with the backup. This action cannot be undone. Are you sure?")) {
+        if (!await confirm("WARNING: This will replace ALL current data with the backup. This action cannot be undone. Are you sure?", "Restore Database", "destructive")) {
             event.target.value = ""; // Reset input
             return;
         }
@@ -64,7 +66,7 @@ export default function SettingsPage() {
             await restoreBackupZip(file);
         } catch (error) {
             console.error("Restore failed", error);
-            alert("Restore failed. Ensure you uploaded a valid backup ZIP file.");
+            await alert("Restore failed. Ensure you uploaded a valid backup ZIP file.", "Error");
             setIsRestoring(false);
         }
     };
