@@ -198,8 +198,8 @@ export default function DashboardPage() {
                                 <AreaChart data={stats.salesData}>
                                     <defs>
                                         <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                                            <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#F9D342" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#F9D342" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -209,7 +209,7 @@ export default function DashboardPage() {
                                         contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--foreground))' }}
                                         formatter={(value: number | undefined) => [`₹${(value || 0).toFixed(2)}`, "Sales"]}
                                     />
-                                    <Area type="monotone" dataKey="sales" stroke="#8884d8" fillOpacity={1} fill="url(#colorSales)" />
+                                    <Area type="monotone" dataKey="sales" stroke="#F9D342" fillOpacity={1} fill="url(#colorSales)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -230,8 +230,8 @@ export default function DashboardPage() {
                                     stats.recentOrders.map(order => (
                                         <div key={order.id} className="flex items-center">
                                             <span className="relative flex h-2 w-2 mr-4">
-                                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${order.status === 'completed' ? 'bg-sky-400' : 'bg-gray-400'}`}></span>
-                                                <span className={`relative inline-flex rounded-full h-2 w-2 ${order.status === 'completed' ? 'bg-sky-500' : 'bg-gray-500'}`}></span>
+                                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${order.status === 'completed' ? 'bg-yellow-400' : 'bg-gray-400'}`}></span>
+                                                <span className={`relative inline-flex rounded-full h-2 w-2 ${order.status === 'completed' ? 'bg-yellow-500' : 'bg-gray-500'}`}></span>
                                             </span>
                                             <div className="ml-0 space-y-1">
                                                 <p className="text-sm font-medium leading-none">Order #{order.id.slice(0, 6)}</p>
