@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { createBackupZip, restoreBackupZip, checkAndRunAutoBackup } from "@/services/backupService";
 import { exportToCSV } from "@/services/csvService";
 import { db } from "@/db/db";
-import { Loader2, Download, AlertTriangle, FileSpreadsheet } from "lucide-react";
+import { Loader2, Download, AlertTriangle, FileSpreadsheet, ImagePlus, X } from "lucide-react";
+import { imageService } from "@/services/imageService";
 
 export default function SettingsPage() {
     const [isRestoring, setIsRestoring] = useState(false);
@@ -16,14 +17,23 @@ export default function SettingsPage() {
     const { alert, confirm } = useAlert();
     const [settings, setSettings] = useState<any>({});
     const [isSaving, setIsSaving] = useState(false);
+    const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
     useEffect(() => {
         if (checkAndRunAutoBackup()) {
             setBackupNeeded(true);
         }
         // Load Settings
-        db.settings.get('general').then(data => {
-            if (data) setSettings(data);
+        db.settings.get('general').then(async data => {
+            if (data) {
+                setSettings(data);
+                if (data.logoId) {
+                    const url = await imageService.getImageUrl(data.logoId);
+                    if (url) {
+                        setLogoPreview(url);
+                    }
+                }
+            }
         });
     }, []);
 
@@ -165,6 +175,45 @@ export default function SettingsPage() {
                                     value={settings.storeName || ''}
                                     onChange={e => setSettings({ ...settings, storeName: e.target.value })}
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Store Logo</Label>
+                                <div className="flex items-center gap-4">
+                                    {logoPreview ? (
+                                        <div className="relative h-16 w-16 border rounded-md overflow-hidden group">
+                                            <img src={logoPreview} alt="Store Logo" className="h-full w-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setLogoPreview(null);
+                                                    setSettings({ ...settings, logoId: undefined });
+                                                }}
+                                                className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="h-16 w-16 border rounded-md flex items-center justify-center bg-muted">
+                                            <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                                        </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <Input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const id = await imageService.saveImage(file);
+                                                    setSettings({ ...settings, logoId: id });
+                                                    setLogoPreview(URL.createObjectURL(file));
+                                                }
+                                            }}
+                                        />
+                                        <p className="text-xs text-muted-foreground mt-1">Recommended size: 192x192px or square aspect ratio.</p>
+                                    </div>
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email</Label>

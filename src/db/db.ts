@@ -65,6 +65,7 @@ export interface Settings {
     phone: string;
     email: string;
     taxRate: number; // Percentage (e.g., 0.08 for 8%)
+    logoId?: string;
 }
 
 export interface User {

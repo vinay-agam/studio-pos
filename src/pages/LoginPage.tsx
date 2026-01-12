@@ -49,9 +49,9 @@ export default function LoginPage() {
                         <Button type="submit" className="w-full" size="lg">
                             Login
                         </Button>
-                        <div className="text-xs text-center text-muted-foreground mt-4">
+                        {/* <div className="text-xs text-center text-muted-foreground mt-4">
                             Default Admin PIN: 1234
-                        </div>
+                        </div> */}
                     </form>
                 </CardContent>
             </Card>

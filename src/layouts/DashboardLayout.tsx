@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/db/db";
+import { imageService } from "@/services/imageService";
 
 const NavItem = ({ to, icon: Icon, label, isCollapsed }: { to: string; icon: any; label: string; isCollapsed?: boolean }) => {
     const location = useLocation();
@@ -33,7 +36,19 @@ export default function DashboardLayout() {
     const { user, logout } = useAuth();
     const location = useLocation();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+
     const isPosPage = location.pathname === "/pos";
+    const settings = useLiveQuery(() => db.settings.get('general'));
+    const [logoUrl, setLogoUrl] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (settings?.logoId) {
+            imageService.getImageUrl(settings.logoId).then(setLogoUrl);
+        } else {
+            setLogoUrl(null);
+        }
+    }, [settings?.logoId]);
 
     return (
         <div className={cn("flex h-screen w-full bg-muted/40", isCollapsed ? "sm:pl-16" : "sm:pl-64", "transition-[padding] duration-300 ease-in-out")}>
@@ -45,8 +60,15 @@ export default function DashboardLayout() {
                 <div className={cn("flex h-14 items-center border-b lg:h-[60px]", isCollapsed ? "justify-center px-0" : "px-4 lg:px-6")}>
                     <Link to="/" className="flex items-center gap-2 font-semibold">
                         {/* <Package className="h-6 w-6" /> */}
-                        <img src={`${import.meta.env.BASE_URL}android-chrome-192x192.png`} alt="Logo" className="h-8 w-8 rounded-md" />
-                        <span className={cn("transition-all duration-300", isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100")}>StudioPOS</span>
+                        <img
+                            src={logoUrl || `${import.meta.env.BASE_URL}android-chrome-192x192.png`}
+                            alt="Logo"
+                            className="h-8 w-8 rounded-md object-cover"
+                        />
+                        <div className={cn("flex flex-col transition-all duration-300", isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100")}>
+                            {settings?.storeName && <span className="font-semibold leading-tight">{settings.storeName}</span>}
+                            <span className="text-[10px] text-muted-foreground font-normal leading-tight">StudioPOS</span>
+                        </div>
                     </Link>
                 </div>
                 <div className="flex-1 overflow-auto py-2">
@@ -114,7 +136,11 @@ export default function DashboardLayout() {
                                     className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                                 >
                                     {/* <Package className="h-5 w-5 transition-all group-hover:scale-110" /> */}
-                                    <img src={`${import.meta.env.BASE_URL}android-chrome-192x192.png`} alt="Logo" className="h-6 w-6 transition-all group-hover:scale-110 rounded-md" />
+                                    <img
+                                        src={logoUrl || `${import.meta.env.BASE_URL}android-chrome-192x192.png`}
+                                        alt="Logo"
+                                        className="h-6 w-6 transition-all group-hover:scale-110 rounded-md object-cover"
+                                    />
                                     <span className="sr-only">StudioPOS</span>
                                 </Link>
                                 <Link to="/" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
