@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, ShoppingCart, Package, Users, Settings, Image, LogOut, Menu, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Users, Settings, Image, LogOut, Menu, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -44,7 +44,8 @@ export default function DashboardLayout() {
             )}>
                 <div className={cn("flex h-14 items-center border-b lg:h-[60px]", isCollapsed ? "justify-center px-0" : "px-4 lg:px-6")}>
                     <Link to="/" className="flex items-center gap-2 font-semibold">
-                        <Package className="h-6 w-6" />
+                        {/* <Package className="h-6 w-6" /> */}
+                        <img src={`${import.meta.env.BASE_URL}android-chrome-192x192.png`} alt="Logo" className="h-8 w-8 rounded-md" />
                         <span className={cn("transition-all duration-300", isCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100")}>StudioPOS</span>
                     </Link>
                 </div>
@@ -112,7 +113,8 @@ export default function DashboardLayout() {
                                     to="/"
                                     className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                                 >
-                                    <Package className="h-5 w-5 transition-all group-hover:scale-110" />
+                                    {/* <Package className="h-5 w-5 transition-all group-hover:scale-110" /> */}
+                                    <img src={`${import.meta.env.BASE_URL}android-chrome-192x192.png`} alt="Logo" className="h-6 w-6 transition-all group-hover:scale-110 rounded-md" />
                                     <span className="sr-only">StudioPOS</span>
                                 </Link>
                                 <Link to="/" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
@@ -155,7 +157,8 @@ export default function DashboardLayout() {
             {/* Static Branding Badge */}
             {!isPosPage && (
                 <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur border text-xs text-muted-foreground shadow-sm pointer-events-none select-none">
-                    <Package className="h-3 w-3" />
+                    {/* <Package className="h-3 w-3" /> */}
+                    <img src={`${import.meta.env.BASE_URL}android-chrome-192x192.png`} alt="Logo" className="h-4 w-4 rounded-sm" />
                     <span className="font-semibold">StudioPOS</span>
                 </div>
             )}
