@@ -15,7 +15,6 @@ export default defineConfig({
         short_name: 'StudioPOS',
         description: 'Offline-first Point of Sale for Studios',
         theme_color: '#ffffff',
-        background_color: '#ffffff',
         icons: [
           {
             src: 'android-chrome-192x192.png',
