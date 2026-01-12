@@ -11,13 +11,13 @@ export default function POSPage() {
     const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
-        <div className="flex h-screen w-full bg-background overflow-hidden flex-col md:flex-row">
+        <div className="flex h-screen w-full bg-background overflow-hidden flex-col lg:flex-row">
             {/* Left Side: Product Grid */}
             <div className="flex-1 h-full overflow-hidden relative">
                 <ProductGrid />
 
                 {/* Mobile Cart Bottom Bar */}
-                <div className="md:hidden absolute bottom-0 left-0 right-0 p-4 bg-background border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
+                <div className="lg:hidden absolute bottom-0 left-0 right-0 p-4 bg-background border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button className="w-full h-12 text-lg flex justify-between" size="lg">
@@ -43,7 +43,7 @@ export default function POSPage() {
             </div>
 
             {/* Right Side: Cart Panel (Desktop) */}
-            <div className="hidden md:block w-[400px] h-full shadow-xl z-10 border-l bg-card">
+            <div className="hidden lg:block w-[400px] h-full shadow-xl z-10 border-l bg-card">
                 <CartPanel />
             </div>
         </div>

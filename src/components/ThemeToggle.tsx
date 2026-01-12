@@ -9,12 +9,14 @@ import {
 import { useEffect, useState } from "react"
 
 export function ThemeToggle() {
-    const [theme, setTheme] = useState<"light" | "dark" | "system">("system")
-
-    useEffect(() => {
-        const stored = localStorage.getItem("theme") as "light" | "dark" | "system"
-        if (stored) setTheme(stored)
-    }, [])
+    const [theme, setTheme] = useState<"light" | "dark" | "system">(() => {
+        try {
+            const stored = localStorage.getItem("theme") as "light" | "dark" | "system"
+            return stored || "system"
+        } catch (e) {
+            return "system"
+        }
+    })
 
     useEffect(() => {
         const root = window.document.documentElement
