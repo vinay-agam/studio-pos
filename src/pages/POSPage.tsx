@@ -11,7 +11,7 @@ export default function POSPage() {
     const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
     return (
-        <div className="flex h-screen w-full bg-background overflow-hidden flex-col lg:flex-row">
+        <div className="flex h-full w-full bg-background overflow-hidden flex-col lg:flex-row">
             {/* Left Side: Product Grid */}
             <div className="flex-1 h-full overflow-hidden relative">
                 <ProductGrid />

@@ -36,6 +36,7 @@ export default function DashboardLayout() {
     const { user, logout } = useAuth();
     const location = useLocation();
     const [isCollapsed, setIsCollapsed] = React.useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
 
     const isPosPage = location.pathname === "/pos";
@@ -122,7 +123,7 @@ export default function DashboardLayout() {
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden transition-all duration-300">
                 <header className="h-16 sm:h-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center px-6 sticky top-0 z-10 gap-4">
-                    <Sheet>
+                    <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                         <SheetTrigger asChild>
                             <Button size="icon" variant="outline" className="sm:hidden">
                                 <Menu className="h-5 w-5" />
@@ -136,6 +137,7 @@ export default function DashboardLayout() {
                                 <Link
                                     to="/"
                                     className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
+                                    onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {/* <Package className="h-5 w-5 transition-all group-hover:scale-110" /> */}
                                     <img
@@ -145,27 +147,27 @@ export default function DashboardLayout() {
                                     />
                                     <span className="sr-only">StudioPOS</span>
                                 </Link>
-                                <Link to="/" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                                <Link to="/" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                                     <LayoutDashboard className="h-5 w-5" />
                                     Dashboard
                                 </Link>
-                                <Link to="/pos" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                                <Link to="/pos" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                                     <ShoppingCart className="h-5 w-5" />
                                     POS Terminal
                                 </Link>
-                                <Link to="/orders" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                                <Link to="/orders" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                                     <ClipboardList className="h-5 w-5" />
                                     Orders
                                 </Link>
-                                <Link to="/products" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                                <Link to="/products" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                                     <Image className="h-5 w-5" />
                                     Products
                                 </Link>
-                                <Link to="/customers" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                                <Link to="/customers" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                                     <Users className="h-5 w-5" />
                                     Customers
                                 </Link>
-                                <Link to="/settings" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                                <Link to="/settings" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                                     <Settings className="h-5 w-5" />
                                     Settings
                                 </Link>
@@ -202,7 +204,7 @@ export default function DashboardLayout() {
                 <div
                     className={cn(
                         "flex-1 overflow-auto",
-                        !isPosPage ? "p-4 sm:p-6" : "p-0 sm:overflow-hidden"
+                        !isPosPage ? "p-4 sm:p-6" : "p-0 overflow-hidden"
                     )}
                 >
                     <Outlet />
