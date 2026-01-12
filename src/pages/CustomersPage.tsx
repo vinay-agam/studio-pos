@@ -82,14 +82,14 @@ export default function CustomersPage() {
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h1 className="text-3xl font-bold">Customers</h1>
                 <Dialog open={open} onOpenChange={(val) => {
                     setOpen(val);
                     if (!val) setEditingCustomer(null);
                 }}>
                     <DialogTrigger asChild>
-                        <Button onClick={() => setEditingCustomer(null)}>
+                        <Button onClick={() => setEditingCustomer(null)} className="w-full sm:w-auto">
                             <Plus className="mr-2 h-4 w-4" /> Add Customer
                         </Button>
                     </DialogTrigger>
@@ -164,11 +164,11 @@ export default function CustomersPage() {
 
             <Card>
                 <CardHeader>
-                    <div className="relative">
+                    <div className="relative w-full sm:w-auto">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search customers..."
-                            className="pl-8 max-w-sm"
+                            className="pl-8 w-full sm:w-[300px]"
                             value={search}
                             onChange={(e) => {
                                 setSearch(e.target.value);
@@ -178,58 +178,108 @@ export default function CustomersPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Phone</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Address</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {paginatedCustomers.map((customer) => (
-                                <TableRow key={customer.id}>
-                                    <TableCell className="font-medium">{customer.name}</TableCell>
-                                    <TableCell>{customer.phone}</TableCell>
-                                    <TableCell>{customer.email}</TableCell>
-                                    <TableCell>{customer.address}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => {
-                                            setViewingHistory(customer);
-                                            setHistoryOpen(true);
-                                        }}>
-                                            <History className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" onClick={() => {
-                                            setEditingCustomer(customer);
-                                            setOpen(true);
-                                        }}>
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(customer.id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {customers.length === 0 && (
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-4">
+                        {paginatedCustomers.map(customer => (
+                            <div key={customer.id} className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 space-y-3">
+                                <div className="space-y-1">
+                                    <div className="font-semibold text-lg">{customer.name}</div>
+                                    <div className="text-sm text-muted-foreground space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium">Phone:</span> {customer.phone}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium">Email:</span> {customer.email}
+                                        </div>
+                                        {customer.address && (
+                                            <div className="flex items-start gap-2">
+                                                <span className="font-medium">Address:</span> <span className="flex-1">{customer.address}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="pt-2 border-t flex justify-end gap-2">
+                                    <Button variant="ghost" size="sm" onClick={() => {
+                                        setViewingHistory(customer);
+                                        setHistoryOpen(true);
+                                    }}>
+                                        <History className="h-4 w-4 mr-2" /> History
+                                    </Button>
+                                    <Button variant="ghost" size="sm" onClick={() => {
+                                        setEditingCustomer(customer);
+                                        setOpen(true);
+                                    }}>
+                                        <Edit className="h-4 w-4 mr-2" /> Edit
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(customer.id)}>
+                                        <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+                        {customers.length === 0 && (
+                            <div className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg">
+                                No customers found.
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block rounded-md border">
+                        <Table>
+                            <TableHeader>
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                                        No customers found.
-                                    </TableCell>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Phone</TableHead>
+                                    <TableHead>Email</TableHead>
+                                    <TableHead>Address</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {paginatedCustomers.map((customer) => (
+                                    <TableRow key={customer.id}>
+                                        <TableCell className="font-medium">{customer.name}</TableCell>
+                                        <TableCell>{customer.phone}</TableCell>
+                                        <TableCell>{customer.email}</TableCell>
+                                        <TableCell>{customer.address}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="ghost" size="icon" onClick={() => {
+                                                setViewingHistory(customer);
+                                                setHistoryOpen(true);
+                                            }}>
+                                                <History className="h-4 w-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" onClick={() => {
+                                                setEditingCustomer(customer);
+                                                setOpen(true);
+                                            }}>
+                                                <Edit className="h-4 w-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(customer.id)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                {customers.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                                            No customers found.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
 
                     {/* Pagination Controls */}
-                    <div className="flex items-center justify-between py-4">
-                        <div className="flex-1 text-sm text-muted-foreground mr-4">
+                    {/* Pagination Controls */}
+                    <div className="flex flex-col md:flex-row items-center justify-between py-4 gap-4">
+                        <div className="flex-1 text-sm text-muted-foreground order-2 md:order-1">
                             Showing {paginatedCustomers.length} of {customers.length} customers
                         </div>
-                        <div className="flex items-center space-x-6 lg:space-x-8">
+                        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 lg:space-x-8 order-1 md:order-2 w-full md:w-auto justify-between sm:justify-end">
                             <div className="flex items-center space-x-2">
                                 <p className="text-sm font-medium">Rows per page</p>
                                 <Select

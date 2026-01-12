@@ -238,70 +238,124 @@ export function ProductList() {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <Input
-                    placeholder="Search products..."
-                    value={globalFilter ?? ""}
-                    onChange={(event) => setGlobalFilter(event.target.value)}
-                    className="max-w-sm"
-                />
-                <Select
-                    value={(table.getColumn("category")?.getFilterValue() as string) ?? "all"}
-                    onValueChange={(value: string) =>
-                        table.getColumn("category")?.setFilterValue(value === "all" ? undefined : value)
-                    }
-                >
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        {categories.map((category) => (
-                            <SelectItem key={category} value={category}>
-                                {category}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select
-                    value={(table.getColumn("type")?.getFilterValue() as string) ?? "all"}
-                    onValueChange={(value: string) =>
-                        table.getColumn("type")?.setFilterValue(value === "all" ? undefined : value)
-                    }
-                >
-                    <SelectTrigger className="w-[180px] ml-2">
-                        <SelectValue placeholder="Product Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Types</SelectItem>
-                        <SelectItem value="simple">Single</SelectItem>
-                        <SelectItem value="variable">Variant</SelectItem>
-                    </SelectContent>
-                </Select>
-                {canEdit && (
-                    <Button onClick={() => navigate("/products/new")}>
-                        <Plus className="mr-2 h-4 w-4" /> Add Product
-                    </Button>
-                )}
-                {canEdit && (
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <Input
+                        placeholder="Search products..."
+                        value={globalFilter ?? ""}
+                        onChange={(event) => setGlobalFilter(event.target.value)}
+                        className="w-full sm:w-[300px]"
+                    />
                     <div className="flex gap-2">
-                        <input
-                            type="file"
-                            accept=".xlsx, .xls"
-                            className="hidden"
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                        />
-                        <Button variant="outline" onClick={() => generateProductTemplate()}>
-                            <Download className="mr-2 h-4 w-4" /> Template
+                        <Select
+                            value={(table.getColumn("category")?.getFilterValue() as string) ?? "all"}
+                            onValueChange={(value: string) =>
+                                table.getColumn("category")?.setFilterValue(value === "all" ? undefined : value)
+                            }
+                        >
+                            <SelectTrigger className="w-[180px] flex-1 sm:flex-none">
+                                <SelectValue placeholder="Category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Categories</SelectItem>
+                                {categories.map((category) => (
+                                    <SelectItem key={category} value={category}>
+                                        {category}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <Select
+                            value={(table.getColumn("type")?.getFilterValue() as string) ?? "all"}
+                            onValueChange={(value: string) =>
+                                table.getColumn("type")?.setFilterValue(value === "all" ? undefined : value)
+                            }
+                        >
+                            <SelectTrigger className="w-[180px] flex-1 sm:flex-none">
+                                <SelectValue placeholder="Product Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Types</SelectItem>
+                                <SelectItem value="simple">Single</SelectItem>
+                                <SelectItem value="variable">Variant</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                {canEdit && (
+                    <div className="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
+                        <Button onClick={() => navigate("/products/new")} className="flex-1 sm:flex-none">
+                            <Plus className="mr-2 h-4 w-4" /> Add Product
                         </Button>
-                        <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-                            <Upload className="mr-2 h-4 w-4" /> Import Excel
-                        </Button>
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <input
+                                type="file"
+                                accept=".xlsx, .xls"
+                                className="hidden"
+                                ref={fileInputRef}
+                                onChange={handleFileUpload}
+                            />
+                            <Button variant="outline" onClick={() => generateProductTemplate()} className="flex-1 sm:flex-none">
+                                <Download className="mr-2 h-4 w-4" /> Template
+                            </Button>
+                            <Button variant="outline" onClick={() => fileInputRef.current?.click()} className="flex-1 sm:flex-none">
+                                <Upload className="mr-2 h-4 w-4" /> Import Excel
+                            </Button>
+                        </div>
                     </div>
                 )}
             </div>
-            <div className="rounded-md border">
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+                {table.getRowModel().rows.map((row) => (
+                    <div key={row.id} className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 space-y-3">
+                        <div className="flex gap-4">
+                            <ProductThumbnail imageId={row.getValue("imageId")} />
+                            <div className="flex-1 space-y-1">
+                                <div className="flex justify-between items-start">
+                                    <div className="font-semibold">{row.getValue<string>("title")}</div>
+                                    <div className="font-bold">
+                                        {new Intl.NumberFormat("en-US", {
+                                            style: "currency",
+                                            currency: "INR",
+                                        }).format(row.getValue<number>("price"))}
+                                    </div>
+                                </div>
+                                <div className="text-sm text-muted-foreground flex gap-2">
+                                    <span className="bg-muted px-1.5 py-0.5 rounded text-xs">{row.getValue<string>("id")}</span>
+                                    <span className="capitalize">{row.getValue<string>("type") === "variable" ? "Variant" : "Single"}</span>
+                                    {row.getValue<string>("category") && <span>• {row.getValue<string>("category")}</span>}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-2 border-t">
+                            <div className={row.getValue<number>("inventory") < 5 ? "text-red-500 font-bold text-sm" : "text-sm"}>
+                                Stock: {row.getValue<number>("inventory")}
+                            </div>
+                            {canEdit && (
+                                <div className="flex gap-1">
+                                    <Button variant="ghost" size="sm" onClick={() => navigate(`/products/edit/${row.original.id}`)}>
+                                        <Edit className="h-4 w-4 mr-1" /> Edit
+                                    </Button>
+                                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(row.original.id)}>
+                                        <Trash2 className="h-4 w-4 mr-1" /> Delete
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ))}
+                {table.getRowModel().rows.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg">
+                        No products found.
+                    </div>
+                )}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block rounded-md border">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -351,11 +405,11 @@ export function ProductList() {
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-between py-4">
-                <div className="flex-1 text-sm text-muted-foreground mr-4">
+            <div className="flex flex-col md:flex-row items-center justify-between py-4 gap-4">
+                <div className="flex-1 text-sm text-muted-foreground order-2 md:order-1 text-center md:text-left">
                     Showing {table.getRowModel().rows.length} of {products.length} products
                 </div>
-                <div className="flex items-center space-x-6 lg:space-x-8">
+                <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 lg:space-x-8 order-1 md:order-2 w-full md:w-auto justify-between sm:justify-end">
                     <div className="flex items-center space-x-2">
                         <p className="text-sm font-medium">Rows per page</p>
                         <Select

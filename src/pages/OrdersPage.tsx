@@ -20,6 +20,93 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { getDateRange, type DateRangeType } from "@/lib/dateUtils";
 
+const OrderTable = ({ data, actions }: { data: Order[], actions?: (order: Order) => React.ReactNode }) => (
+    <>
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-4">
+            {data.map(order => (
+                <div key={order.id} className="bg-card text-card-foreground rounded-lg border shadow-sm p-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                            <div className="font-semibold text-sm">Order #{order.id.slice(0, 8)}...</div>
+                            <div className="text-xs text-muted-foreground">
+                                {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <div className="font-bold">₹{order.total.toFixed(2)}</div>
+                            <div className="text-xs text-muted-foreground">{order.items.length} Items</div>
+                        </div>
+                    </div>
+
+                    {order.customerId && (
+                        <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded flex items-center gap-2">
+                            <span className="font-medium">Customer:</span> {order.customerId}
+                        </div>
+                    )}
+
+                    <div className="pt-2 flex justify-end border-t mt-2">
+                        {actions ? actions(order) : null}
+                    </div>
+                </div>
+            ))}
+            {data.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground bg-muted/20 rounded-lg">
+                    No orders found.
+                </div>
+            )}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block rounded-md border overflow-x-auto">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="whitespace-nowrap">Date</TableHead>
+                        <TableHead>Order ID</TableHead>
+                        <TableHead>Details</TableHead>
+                        <TableHead>Total</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {data.map(order => (
+                        <TableRow key={order.id}>
+                            <TableCell className="whitespace-nowrap">
+                                {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}
+                            </TableCell>
+                            <TableCell className="font-mono text-xs max-w-[100px] truncate" title={order.id}>
+                                {order.id.slice(0, 8)}...
+                            </TableCell>
+                            <TableCell className="max-w-[200px]">
+                                <div className="truncate">
+                                    {order.items.length} Items
+                                </div>
+                                {order.customerId && (
+                                    <div className="text-xs text-muted-foreground truncate" title={`Cust: ${order.customerId}`}>
+                                        Cust: {order.customerId}
+                                    </div>
+                                )}
+                            </TableCell>
+                            <TableCell>₹{order.total.toFixed(2)}</TableCell>
+                            <TableCell className="text-right whitespace-nowrap">
+                                {actions ? actions(order) : null}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                    {data.length === 0 && (
+                        <TableRow>
+                            <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                No orders found.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </div>
+    </>
+);
+
 export default function OrdersPage() {
     const navigate = useNavigate();
     const { loadOrder } = useCart();
@@ -76,65 +163,18 @@ export default function OrdersPage() {
         }
     };
 
-    const OrderTable = ({ data, actions }: { data: Order[], actions?: (order: Order) => React.ReactNode }) => (
-        <div className="rounded-md border overflow-x-auto">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="whitespace-nowrap">Date</TableHead>
-                        <TableHead>Order ID</TableHead>
-                        <TableHead>Details</TableHead>
-                        <TableHead>Total</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {data.map(order => (
-                        <TableRow key={order.id}>
-                            <TableCell className="whitespace-nowrap">
-                                {new Date(order.createdAt).toLocaleDateString()} {new Date(order.createdAt).toLocaleTimeString()}
-                            </TableCell>
-                            <TableCell className="font-mono text-xs max-w-[100px] truncate" title={order.id}>
-                                {order.id.slice(0, 8)}...
-                            </TableCell>
-                            <TableCell className="max-w-[200px]">
-                                <div className="truncate">
-                                    {order.items.length} Items
-                                </div>
-                                {order.customerId && (
-                                    <div className="text-xs text-muted-foreground truncate" title={`Cust: ${order.customerId}`}>
-                                        Cust: {order.customerId}
-                                    </div>
-                                )}
-                            </TableCell>
-                            <TableCell>₹{order.total.toFixed(2)}</TableCell>
-                            <TableCell className="text-right whitespace-nowrap">
-                                {actions ? actions(order) : null}
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                    {data.length === 0 && (
-                        <TableRow>
-                            <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                No orders found.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
-        </div>
-    );
-
     return (
         <div className="space-y-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h1 className="text-3xl font-bold">Orders Management</h1>
+            <div className="flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <h1 className="text-2xl sm:text-3xl font-bold">Orders Management</h1>
+                </div>
 
-                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
                     {/* Date Filter */}
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 flex-1">
                         <Select value={dateRange} onValueChange={(val: DateRangeType) => setDateRange(val)}>
-                            <SelectTrigger className="w-[160px]">
+                            <SelectTrigger className="w-full sm:w-[160px]">
                                 <Calendar className="mr-2 h-4 w-4" />
                                 <SelectValue placeholder="Period" />
                             </SelectTrigger>
@@ -152,26 +192,26 @@ export default function OrdersPage() {
                         </Select>
 
                         {dateRange === 'custom' && (
-                            <>
+                            <div className="flex gap-2 w-full sm:w-auto">
                                 <Input
                                     type="date"
                                     value={customStart}
                                     onChange={(e) => setCustomStart(e.target.value)}
-                                    className="w-[130px]"
+                                    className="w-full sm:w-[130px]"
                                 />
                                 <Input
                                     type="date"
                                     value={customEnd}
                                     onChange={(e) => setCustomEnd(e.target.value)}
-                                    className="w-[130px]"
+                                    className="w-full sm:w-[130px]"
                                 />
-                            </>
+                            </div>
                         )}
                     </div>
 
                     {/* Sort Filter */}
                     <Select value={sortOrder} onValueChange={setSortOrder}>
-                        <SelectTrigger className="w-[160px]">
+                        <SelectTrigger className="w-full sm:w-[160px]">
                             <ArrowUpDown className="mr-2 h-4 w-4" />
                             <SelectValue placeholder="Sort By" />
                         </SelectTrigger>
@@ -204,11 +244,11 @@ export default function OrdersPage() {
                     )} />
 
                     {/* Pagination Controls */}
-                    <div className="flex items-center justify-between py-4">
-                        <div className="flex-1 text-sm text-muted-foreground mr-4">
+                    <div className="flex flex-col md:flex-row items-center justify-between py-4 gap-4">
+                        <div className="text-sm text-muted-foreground order-2 md:order-1">
                             Showing {paginatedOrders.length} of {sortedOrders.length} orders
                         </div>
-                        <div className="flex items-center space-x-6 lg:space-x-8">
+                        <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 lg:space-x-8 order-1 md:order-2 w-full md:w-auto justify-between sm:justify-end">
                             <div className="flex items-center space-x-2">
                                 <p className="text-sm font-medium">Rows per page</p>
                                 <Select
@@ -230,26 +270,28 @@ export default function OrdersPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-                                Page {currentPage + 1} of {Math.max(totalPages, 1)}
-                            </div>
                             <div className="flex items-center space-x-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
-                                    disabled={currentPage === 0}
-                                >
-                                    Previous
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
-                                    disabled={currentPage >= totalPages - 1}
-                                >
-                                    Next
-                                </Button>
+                                <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                                    Page {currentPage + 1} of {Math.max(totalPages, 1)}
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                                        disabled={currentPage === 0}
+                                    >
+                                        Previous
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                                        disabled={currentPage >= totalPages - 1}
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
