@@ -7,7 +7,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,10 +17,9 @@ import { Loader2, Printer, Check } from "lucide-react";
 import { ReceiptPrinter } from "./ReceiptPrinter";
 import { useReactToPrint } from "react-to-print";
 
-export function CheckoutDialog({ total, disabled }: { total: number; disabled?: boolean }) {
+export function CheckoutDialog({ total, open, onOpenChange, onComplete }: { total: number; open: boolean; onOpenChange: (open: boolean) => void; onComplete?: () => void }) {
     const { items, clearCart, customer, subtotal, discount, discountType, discountValue, tax, currentOrderId } = useCart();
     const { alert } = useAlert();
-    const [open, setOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "upi">("cash");
     const [amountTendered, setAmountTendered] = useState("");
@@ -108,21 +106,24 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
     };
 
     const handleClose = () => {
-        setOpen(false);
-        setLastOrder(null);
-        setLastCustomer(null);
-        setAmountTendered("");
-        setIsProcessing(false);
-        setPaymentMethod("cash");
+        onOpenChange(false);
+        // Delay resetting state slightly to allow animation to finish, or just reset immediately if desired.
+        // Actually, better to reset state when the dialog closes completely. 
+        // For now, let's keep the logic simple, but check if we need to clean up.
+        // If we reset immediately, the success screen might flicker to the form before closing.
+        // But since we are closing, it might not matter.
+        setTimeout(() => {
+            setLastOrder(null);
+            setLastCustomer(null);
+            setAmountTendered("");
+            setIsProcessing(false);
+            setPaymentMethod("cash");
+        }, 300);
     };
 
     return (
         <Dialog open={open} onOpenChange={(val) => !val && handleClose()}>
-            <DialogTrigger asChild>
-                <Button className="w-full mt-4" size="lg" disabled={disabled} onClick={() => setOpen(true)}>
-                    Checkout (₹{total.toFixed(2)})
-                </Button>
-            </DialogTrigger>
+
             <DialogContent className="sm:max-w-[425px]">
                 {!lastOrder ? (
                     <>
@@ -221,7 +222,10 @@ export function CheckoutDialog({ total, disabled }: { total: number; disabled?: 
                             </div>
                         </div>
                         <DialogFooter>
-                            <Button className="w-full" onClick={handleClose}>Start New Sale</Button>
+                            <Button className="w-full" onClick={() => {
+                                handleClose();
+                                onComplete?.();
+                            }}>Start New Sale</Button>
                         </DialogFooter>
                     </>
                 )}

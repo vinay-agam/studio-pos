@@ -156,9 +156,9 @@ export function ProductForm({ productId }: ProductFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto p-6 bg-card rounded-lg border shadow-sm">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl mx-auto p-4 md:p-6 bg-card rounded-lg border shadow-sm">
 
-                <div className="flex gap-4 p-4 border rounded-md bg-muted/20">
+                <div className="flex flex-col sm:flex-row gap-4 p-4 border rounded-md bg-muted/20">
                     <Button
                         type="button"
                         variant={productType === 'simple' ? "default" : "outline"}
@@ -177,12 +177,12 @@ export function ProductForm({ productId }: ProductFormProps) {
                     </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
                         name="title"
                         render={({ field }) => (
-                            <FormItem className="col-span-2">
+                            <FormItem className="col-span-1 lg:col-span-2">
                                 <FormLabel>Product Title</FormLabel>
                                 <FormControl>
                                     <Input placeholder="e.g. Vintage Photo Frame" {...field} />
@@ -257,7 +257,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                         control={form.control}
                         name="description"
                         render={({ field }) => (
-                            <FormItem className="col-span-2">
+                            <FormItem className="col-span-1 lg:col-span-2">
                                 <FormLabel>Description</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Product details..." {...field} />
@@ -276,8 +276,8 @@ export function ProductForm({ productId }: ProductFormProps) {
                             <Button type="button" onClick={addVariant} size="sm" variant="secondary"><Plus className="mr-2 h-4 w-4" /> Add Variant</Button>
                         </div>
                         {variants.map((variant, index) => (
-                            <div key={index} className="grid grid-cols-12 gap-2 items-end">
-                                <div className="col-span-4">
+                            <div key={index} className="grid grid-cols-2 md:grid-cols-12 gap-3 md:gap-2 items-end pb-4 border-b md:border-0 last:border-0 mb-4 md:mb-0">
+                                <div className="col-span-2 md:col-span-4">
                                     <FormLabel className="text-xs">Variant Name</FormLabel>
                                     <Input
                                         placeholder="e.g. Size 4x6"
@@ -285,7 +285,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         onChange={(e) => updateVariant(index, 'title', e.target.value)}
                                     />
                                 </div>
-                                <div className="col-span-3">
+                                <div className="col-span-1 md:col-span-3">
                                     <FormLabel className="text-xs">Price</FormLabel>
                                     <Input
                                         type="number"
@@ -294,7 +294,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         onChange={(e) => updateVariant(index, 'price', parseFloat(e.target.value))}
                                     />
                                 </div>
-                                <div className="col-span-3">
+                                <div className="col-span-1 md:col-span-3">
                                     <FormLabel className="text-xs">Stock</FormLabel>
                                     <Input
                                         type="number"
@@ -302,7 +302,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                                         onChange={(e) => updateVariant(index, 'inventory', parseInt(e.target.value))}
                                     />
                                 </div>
-                                <div className="col-span-2">
+                                <div className="col-span-2 md:col-span-2 flex justify-end md:justify-start mt-2 md:mt-0">
                                     <Button type="button" variant="destructive" size="icon" onClick={() => removeVariant(index)}>
                                         <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -315,7 +315,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                 {/* Image Upload Section */}
                 <div className="space-y-4">
                     <FormLabel>Product Image</FormLabel>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         {imageUrl ? (
                             <div className="relative w-32 h-32 border rounded-md overflow-hidden group">
                                 <img src={imageUrl} alt="Product" className="w-full h-full object-cover" />
@@ -345,7 +345,7 @@ export function ProductForm({ productId }: ProductFormProps) {
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-4">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-4">
                     <Button type="button" variant="outline" onClick={() => navigate("/products")}>Cancel</Button>
                     <Button type="submit">Save Product</Button>
                 </div>

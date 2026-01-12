@@ -136,16 +136,19 @@ export default function DashboardLayout() {
                             <nav className="grid gap-6 text-lg font-medium">
                                 <Link
                                     to="/"
-                                    className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
+                                    className="flex items-center gap-2 px-2.5 mb-2"
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     {/* <Package className="h-5 w-5 transition-all group-hover:scale-110" /> */}
                                     <img
                                         src={logoUrl || `${import.meta.env.BASE_URL}android-chrome-192x192.png`}
                                         alt="Logo"
-                                        className="h-6 w-6 transition-all group-hover:scale-110 rounded-md object-cover"
+                                        className="h-8 w-8 rounded-md object-cover"
                                     />
-                                    <span className="sr-only">StudioPOS</span>
+                                    <div className="flex flex-col">
+                                        {settings?.storeName && <span className="font-semibold leading-tight text-base">{settings.storeName}</span>}
+                                        <span className="text-[10px] text-muted-foreground font-normal leading-tight">StudioPOS</span>
+                                    </div>
                                 </Link>
                                 <Link to="/" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
                                     <LayoutDashboard className="h-5 w-5" />

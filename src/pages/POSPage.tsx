@@ -6,9 +6,12 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from 
 import { ShoppingCart } from "lucide-react";
 
 
+import { useState } from "react";
+
 export default function POSPage() {
     const { total, items } = useCart();
     const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+    const [isCartOpen, setIsCartOpen] = useState(false);
 
     return (
         <div className="flex h-full w-full bg-background overflow-hidden flex-col lg:flex-row">
@@ -18,7 +21,7 @@ export default function POSPage() {
 
                 {/* Mobile Cart Bottom Bar */}
                 <div className="lg:hidden absolute bottom-0 left-0 right-0 p-4 bg-background border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
-                    <Sheet>
+                    <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
                         <SheetTrigger asChild>
                             <Button className="w-full h-12 text-lg flex justify-between" size="lg">
                                 <span className="flex items-center gap-2">
@@ -35,7 +38,7 @@ export default function POSPage() {
                                 <SheetDescription>Review your items and checkout</SheetDescription>
                             </div>
                             <div className="flex-1 h-full overflow-hidden rounded-t-[10px]">
-                                <CartPanel isInSheet={true} />
+                                <CartPanel isInSheet={true} onCartClose={() => setIsCartOpen(false)} />
                             </div>
                         </SheetContent>
                     </Sheet>
