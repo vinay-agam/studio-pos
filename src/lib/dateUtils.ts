@@ -1,4 +1,4 @@
-export type DateRangeType = 'today' | 'yesterday' | 'thisWeek' | 'lastWeek' | 'last7days' | 'thisMonth' | 'lastMonth' | 'custom';
+export type DateRangeType = 'today' | 'yesterday' | 'thisWeek' | 'lastWeek' | 'last7days' | 'thisMonth' | 'lastMonth' | 'custom' | 'all';
 
 export function getDateRange(type: DateRangeType, customStart?: string, customEnd?: string): { start: Date; end: Date } {
     const now = new Date();
@@ -10,6 +10,10 @@ export function getDateRange(type: DateRangeType, customStart?: string, customEn
     end.setHours(23, 59, 59, 999);
 
     switch (type) {
+        case 'all':
+            start.setTime(0); // Epoch
+            end.setFullYear(3000); // Far future
+            break;
         case 'today':
             // start/end already set to today
             break;

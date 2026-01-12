@@ -14,19 +14,60 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { PlayCircle, Eye } from "lucide-react";
+import { PlayCircle, Eye, Calendar, ArrowUpDown } from "lucide-react";
 import { OrderDetailsDialog } from "@/components/orders/OrderDetailsDialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { getDateRange, type DateRangeType } from "@/lib/dateUtils";
 
 export default function OrdersPage() {
     const navigate = useNavigate();
     const { loadOrder } = useCart();
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-    // Fetch all orders
-    const orders = useLiveQuery(() => db.orders.orderBy('createdAt').reverse().toArray()) || [];
+    // Filter & Sort State
+    const [dateRange, setDateRange] = useState<DateRangeType>("last7days");
+    const [customStart, setCustomStart] = useState<string>("");
+    const [customEnd, setCustomEnd] = useState<string>("");
+    const [sortOrder, setSortOrder] = useState<string>("newest");
 
-    const drafts = orders.filter(o => o.status === 'draft');
-    const completed = orders.filter(o => o.status === 'completed');
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+
+    // Fetch all orders
+    const allOrders = useLiveQuery(() => db.orders.toArray()) || [];
+
+    // Filter orders
+    const filteredOrders = allOrders.filter(o => {
+        const { start, end } = getDateRange(dateRange, customStart, customEnd);
+        const date = new Date(o.createdAt);
+        return date >= start && date <= end;
+    });
+
+    // Sort orders
+    const sortedOrders = filteredOrders.sort((a, b) => {
+        switch (sortOrder) {
+            case "oldest":
+                return a.createdAt.localeCompare(b.createdAt);
+            case "amountHigh":
+                return b.total - a.total;
+            case "amountLow":
+                return a.total - b.total;
+            case "newest":
+            default:
+                return b.createdAt.localeCompare(a.createdAt);
+        }
+    });
+
+    // Pagination Logic
+    const totalPages = Math.ceil(sortedOrders.length / pageSize);
+    const paginatedOrders = sortedOrders.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+
+    const drafts = sortedOrders.filter(o => o.status === 'draft');
+    const completed = sortedOrders.filter(o => o.status === 'completed');
+
+
 
     const handleResumeDraft = (order: Order) => {
         if (confirm("Resume this draft? This will replace your current cart.")) {
@@ -86,7 +127,63 @@ export default function OrdersPage() {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-3xl font-bold">Orders Management</h1>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <h1 className="text-3xl font-bold">Orders Management</h1>
+
+                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    {/* Date Filter */}
+                    <div className="flex gap-2">
+                        <Select value={dateRange} onValueChange={(val: DateRangeType) => setDateRange(val)}>
+                            <SelectTrigger className="w-[160px]">
+                                <Calendar className="mr-2 h-4 w-4" />
+                                <SelectValue placeholder="Period" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Time</SelectItem>
+                                <SelectItem value="today">Today</SelectItem>
+                                <SelectItem value="yesterday">Yesterday</SelectItem>
+                                <SelectItem value="thisWeek">This Week</SelectItem>
+                                <SelectItem value="lastWeek">Last Week</SelectItem>
+                                <SelectItem value="last7days">Last 7 Days</SelectItem>
+                                <SelectItem value="thisMonth">This Month</SelectItem>
+                                <SelectItem value="lastMonth">Last Month</SelectItem>
+                                <SelectItem value="custom">Custom Range</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        {dateRange === 'custom' && (
+                            <>
+                                <Input
+                                    type="date"
+                                    value={customStart}
+                                    onChange={(e) => setCustomStart(e.target.value)}
+                                    className="w-[130px]"
+                                />
+                                <Input
+                                    type="date"
+                                    value={customEnd}
+                                    onChange={(e) => setCustomEnd(e.target.value)}
+                                    className="w-[130px]"
+                                />
+                            </>
+                        )}
+                    </div>
+
+                    {/* Sort Filter */}
+                    <Select value={sortOrder} onValueChange={setSortOrder}>
+                        <SelectTrigger className="w-[160px]">
+                            <ArrowUpDown className="mr-2 h-4 w-4" />
+                            <SelectValue placeholder="Sort By" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="newest">Newest First</SelectItem>
+                            <SelectItem value="oldest">Oldest First</SelectItem>
+                            <SelectItem value="amountHigh">Amount: High to Low</SelectItem>
+                            <SelectItem value="amountLow">Amount: Low to High</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
 
             <Tabs defaultValue="all" className="w-full">
                 <TabsList>
@@ -96,7 +193,7 @@ export default function OrdersPage() {
                 </TabsList>
 
                 <TabsContent value="all" className="mt-4">
-                    <OrderTable data={orders} actions={(order) => (
+                    <OrderTable data={paginatedOrders} actions={(order) => (
                         order.status === 'draft' ?
                             <Button size="sm" onClick={() => handleResumeDraft(order)}>
                                 <PlayCircle className="mr-2 h-4 w-4" /> Resume
@@ -105,6 +202,57 @@ export default function OrdersPage() {
                                 <Eye className="mr-2 h-4 w-4" /> View
                             </Button>
                     )} />
+
+                    {/* Pagination Controls */}
+                    <div className="flex items-center justify-between py-4">
+                        <div className="flex-1 text-sm text-muted-foreground mr-4">
+                            Showing {paginatedOrders.length} of {sortedOrders.length} orders
+                        </div>
+                        <div className="flex items-center space-x-6 lg:space-x-8">
+                            <div className="flex items-center space-x-2">
+                                <p className="text-sm font-medium">Rows per page</p>
+                                <Select
+                                    value={`${pageSize}`}
+                                    onValueChange={(value: string) => {
+                                        setPageSize(Number(value));
+                                        setCurrentPage(0);
+                                    }}
+                                >
+                                    <SelectTrigger className="h-8 w-[70px]">
+                                        <SelectValue placeholder={pageSize} />
+                                    </SelectTrigger>
+                                    <SelectContent side="top">
+                                        {[10, 20, 30, 40, 50].map((size) => (
+                                            <SelectItem key={size} value={`${size}`}>
+                                                {size}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                                Page {currentPage + 1} of {Math.max(totalPages, 1)}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                                    disabled={currentPage === 0}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                                    disabled={currentPage >= totalPages - 1}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </TabsContent>
 
                 <TabsContent value="drafts" className="mt-4">

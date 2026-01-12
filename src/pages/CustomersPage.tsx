@@ -11,6 +11,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -23,6 +30,10 @@ export default function CustomersPage() {
     const [open, setOpen] = useState(false);
     const [historyOpen, setHistoryOpen] = useState(false);
 
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
+
     const customers = useLiveQuery(async () => {
         const all = await db.customers.toArray();
         if (!search) return all;
@@ -33,6 +44,10 @@ export default function CustomersPage() {
             c.email.toLowerCase().includes(lower)
         );
     }, [search]) || [];
+
+    // Pagination Logic
+    const totalPages = Math.ceil(customers.length / pageSize);
+    const paginatedCustomers = customers.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
     const historyOrders = useLiveQuery(async () => {
         if (!viewingHistory) return [];
@@ -155,7 +170,10 @@ export default function CustomersPage() {
                             placeholder="Search customers..."
                             className="pl-8 max-w-sm"
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setCurrentPage(0); // Reset page on search
+                            }}
                         />
                     </div>
                 </CardHeader>
@@ -171,7 +189,7 @@ export default function CustomersPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {customers.map((customer) => (
+                            {paginatedCustomers.map((customer) => (
                                 <TableRow key={customer.id}>
                                     <TableCell className="font-medium">{customer.name}</TableCell>
                                     <TableCell>{customer.phone}</TableCell>
@@ -205,6 +223,57 @@ export default function CustomersPage() {
                             )}
                         </TableBody>
                     </Table>
+
+                    {/* Pagination Controls */}
+                    <div className="flex items-center justify-between py-4">
+                        <div className="flex-1 text-sm text-muted-foreground mr-4">
+                            Showing {paginatedCustomers.length} of {customers.length} customers
+                        </div>
+                        <div className="flex items-center space-x-6 lg:space-x-8">
+                            <div className="flex items-center space-x-2">
+                                <p className="text-sm font-medium">Rows per page</p>
+                                <Select
+                                    value={`${pageSize}`}
+                                    onValueChange={(value: string) => {
+                                        setPageSize(Number(value));
+                                        setCurrentPage(0);
+                                    }}
+                                >
+                                    <SelectTrigger className="h-8 w-[70px]">
+                                        <SelectValue placeholder={pageSize} />
+                                    </SelectTrigger>
+                                    <SelectContent side="top">
+                                        {[10, 20, 30, 40, 50].map((size) => (
+                                            <SelectItem key={size} value={`${size}`}>
+                                                {size}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                                Page {currentPage + 1} of {Math.max(totalPages, 1)}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+                                    disabled={currentPage === 0}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+                                    disabled={currentPage >= totalPages - 1}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         </div>
