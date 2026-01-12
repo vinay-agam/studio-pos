@@ -87,8 +87,8 @@ export function ProductGrid() {
 
     return (
         <div className="flex flex-col h-full gap-4 p-4">
-            <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-1">
+            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
+                <div className="relative col-span-2 sm:flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="search"
@@ -99,7 +99,7 @@ export function ProductGrid() {
                     />
                 </div>
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger className="w-full sm:w-[160px]">
+                    <SelectTrigger className="w-full sm:w-[160px] col-span-1">
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
@@ -110,7 +110,7 @@ export function ProductGrid() {
                     </SelectContent>
                 </Select>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-full sm:w-[140px]">
+                    <SelectTrigger className="w-full sm:w-[140px] col-span-1">
                         <SelectValue placeholder="All Types" />
                     </SelectTrigger>
                     <SelectContent>
@@ -121,7 +121,7 @@ export function ProductGrid() {
                 </Select>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pb-20">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pb-24 md:pb-4">
                 {filteredProducts.map((product) => (
                     <Card
                         key={product.id}

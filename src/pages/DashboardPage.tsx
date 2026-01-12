@@ -144,7 +144,7 @@ export default function DashboardPage() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -188,7 +188,7 @@ export default function DashboardPage() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 {/* Sales Chart */}
-                <Card className="col-span-4">
+                <Card className="col-span-1 md:col-span-2 lg:col-span-4">
                     <CardHeader>
                         <CardTitle>Sales Overview</CardTitle>
                     </CardHeader>
@@ -217,7 +217,7 @@ export default function DashboardPage() {
                 </Card>
 
                 {/* Recent Activity & Top Products */}
-                <div className="col-span-3 space-y-4">
+                <div className="col-span-1 md:col-span-2 lg:col-span-3 space-y-4">
                     <Card>
                         <CardHeader>
                             <CardTitle>Recent Orders</CardTitle>
@@ -229,15 +229,15 @@ export default function DashboardPage() {
                                 ) : (
                                     stats.recentOrders.map(order => (
                                         <div key={order.id} className="flex items-center">
-                                            <span className="relative flex h-2 w-2 mr-4">
+                                            <span className="relative flex h-2 w-2 mr-4 flex-shrink-0">
                                                 <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${order.status === 'completed' ? 'bg-yellow-400' : 'bg-gray-400'}`}></span>
                                                 <span className={`relative inline-flex rounded-full h-2 w-2 ${order.status === 'completed' ? 'bg-yellow-500' : 'bg-gray-500'}`}></span>
                                             </span>
-                                            <div className="ml-0 space-y-1">
-                                                <p className="text-sm font-medium leading-none">Order #{order.id.slice(0, 6)}</p>
-                                                <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleTimeString()} - {new Date(order.createdAt).toLocaleDateString()}</p>
+                                            <div className="ml-0 space-y-1 flex-1 min-w-0">
+                                                <p className="text-sm font-medium leading-none truncate">Order #{order.id.slice(0, 6)}</p>
+                                                <p className="text-xs text-muted-foreground truncate">{new Date(order.createdAt).toLocaleTimeString()} - {new Date(order.createdAt).toLocaleDateString()}</p>
                                             </div>
-                                            <div className="ml-auto font-medium">+₹{order.total.toFixed(2)}</div>
+                                            <div className="ml-auto font-medium whitespace-nowrap pl-2">+₹{order.total.toFixed(2)}</div>
                                         </div>
                                     ))
                                 )}
@@ -256,8 +256,8 @@ export default function DashboardPage() {
                                 ) : (
                                     stats.topProducts.map((p, i) => (
                                         <div key={i} className="flex items-center justify-between">
-                                            <div className="text-sm font-medium">{p.name}</div>
-                                            <div className="text-sm text-muted-foreground">{p.qty} sold</div>
+                                            <div className="text-sm font-medium truncate flex-1 mr-2" title={p.name}>{p.name}</div>
+                                            <div className="text-sm text-muted-foreground whitespace-nowrap">{p.qty} sold</div>
                                         </div>
                                     ))
                                 )}

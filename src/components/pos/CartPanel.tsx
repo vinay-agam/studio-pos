@@ -1,11 +1,17 @@
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Plus, Minus, ShoppingCart, Save } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingCart, Save, X } from "lucide-react";
 import { CheckoutDialog } from "./CheckoutDialog";
 import { CustomerSelect } from "./CustomerSelect";
 
-export function CartPanel() {
+import { SheetClose } from "@/components/ui/sheet";
+
+interface CartPanelProps {
+    isInSheet?: boolean;
+}
+
+export function CartPanel({ isInSheet = false }: CartPanelProps) {
     const {
         items, removeFromCart, updateQuantity, clearCart,
         customer, setCustomer,
@@ -15,7 +21,18 @@ export function CartPanel() {
 
     if (items.length === 0) {
         return (
-            <div className="h-full flex flex-col items-center justify-center p-8 text-muted-foreground border-l bg-muted/10">
+            <div className="h-full flex flex-col items-center justify-center p-8 text-muted-foreground border-l bg-muted/10 relative">
+                {/* Close button for mobile empty state - only show if in sheet */}
+                {isInSheet && (
+                    <div className="absolute top-4 right-4">
+                        <SheetClose asChild>
+                            <Button variant="ghost" size="icon">
+                                <span className="sr-only">Close</span>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </SheetClose>
+                    </div>
+                )}
                 <ShoppingCart className="h-12 w-12 mb-4 opacity-20" />
                 <p>Cart is empty</p>
                 <p className="text-sm">Scan items or select from grid</p>
@@ -26,11 +43,24 @@ export function CartPanel() {
     return (
         <div className="flex flex-col h-full border-l bg-card">
             {/* Header */}
-            <div className="p-4 border-b space-y-3 bg-muted/40">
-                <div className="flex justify-between items-center">
+            <div className="p-4 border-b space-y-3 bg-muted/40 relative">
+                <div className="flex justify-between items-center pr-8 md:pr-0">
                     <h2 className="font-semibold text-lg flex items-center gap-2">
                         <ShoppingCart className="h-5 w-5" /> Current Sale
                     </h2>
+                    {/* Mobile Close Button - only show if in sheet */}
+                    {isInSheet && (
+                        <div className="absolute top-2 right-2">
+                            <SheetClose asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <span className="sr-only">Close</span>
+                                    <X className="h-5 w-5" />
+                                </Button>
+                            </SheetClose>
+                        </div>
+                    )}
+                </div>
+                <div className="flex justify-between items-center">
                     <div className="flex gap-2">
                         <Button variant="ghost" size="sm" onClick={saveDraft} title="Save Draft">
                             <Save className="h-4 w-4" />

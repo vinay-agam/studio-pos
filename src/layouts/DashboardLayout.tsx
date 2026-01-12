@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, ShoppingCart, Users, Settings, Image, LogOut, Menu, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
@@ -129,7 +129,9 @@ export default function DashboardLayout() {
                                 <span className="sr-only">Toggle Menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="sm:max-w-xs">
+                        <SheetContent side="left" className="sm:max-w-xs flex flex-col">
+                            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                            <SheetDescription className="sr-only">Access different sections of the application</SheetDescription>
                             <nav className="grid gap-6 text-lg font-medium">
                                 <Link
                                     to="/"
@@ -168,14 +170,40 @@ export default function DashboardLayout() {
                                     Settings
                                 </Link>
                             </nav>
+
+                            <div className="mt-auto border-t pt-4 space-y-4">
+                                <div className="flex items-center gap-3 px-2">
+                                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                                        {user?.name.charAt(0)}
+                                    </div>
+                                    <div className="flex flex-col text-sm overflow-hidden whitespace-nowrap">
+                                        <span className="font-medium truncate">{user?.name}</span>
+                                        <span className="text-xs text-muted-foreground capitalize truncate">{user?.role}</span>
+                                    </div>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start"
+                                    onClick={logout}
+                                >
+                                    <LogOut className="h-4 w-4 mr-2" />
+                                    Logout
+                                </Button>
+                                <div className="flex items-center justify-between px-2">
+                                    <span className="font-semibold text-xs text-muted-foreground whitespace-nowrap">v1.0.0</span>
+                                    <ThemeToggle />
+                                </div>
+                            </div>
                         </SheetContent>
                     </Sheet>
                     <h2 className="text-lg font-semibold sm:hidden">Overview</h2>
                 </header>
 
                 <div
-                    className={`flex-1 overflow-auto ${!isPosPage ? 'p-6' : 'p-6 sm:p-0 sm:overflow-hidden'
-                        }`}
+                    className={cn(
+                        "flex-1 overflow-auto",
+                        !isPosPage ? "p-4 sm:p-6" : "p-0 sm:overflow-hidden"
+                    )}
                 >
                     <Outlet />
                 </div>
