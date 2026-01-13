@@ -19,6 +19,8 @@ export default function SettingsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
+    const [restoreStatus, setRestoreStatus] = useState<string>("");
+
     useEffect(() => {
         if (checkAndRunAutoBackup()) {
             setBackupNeeded(true);
@@ -72,12 +74,20 @@ export default function SettingsPage() {
         }
 
         setIsRestoring(true);
+        setRestoreStatus("Starting restore...");
+
         try {
-            await restoreBackupZip(file);
+            await restoreBackupZip(file, (status) => {
+                setRestoreStatus(status);
+            });
+            await alert("Database restored successfully. The application will now reload.", "Success");
+            window.location.reload();
         } catch (error) {
             console.error("Restore failed", error);
             await alert("Restore failed. Ensure you uploaded a valid backup ZIP file.", "Error");
             setIsRestoring(false);
+            setRestoreStatus("");
+            event.target.value = ""; // Reset input on failure so user can try again
         }
     };
 
@@ -293,7 +303,8 @@ export default function SettingsPage() {
                         </div>
                         {isRestoring && (
                             <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                                <Loader2 className="h-4 w-4 animate-spin" /> Restoring database...
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span>{restoreStatus || "Restoring database..."}</span>
                             </div>
                         )}
                     </CardContent>
