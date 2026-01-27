@@ -1,73 +1,55 @@
-# React + TypeScript + Vite
+# Studio POS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Studio POS** is a modern, offline-first **Point of Sale (POS)** web application built with  
+**React, TypeScript, Vite, and shadcn/ui**.
 
-Currently, two official plugins are available:
+It works entirely in the browser using **PWA, Service Workers, and IndexedDB**, making it perfect for  
+**studios, retail shops, and local businesses that need reliable billing without internet or servers.**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 Core Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+✔️ **100% Offline** – Works without internet  
+✔️ **Progressive Web App (PWA)** – Installable on Windows, mobile & tablets  
+✔️ **Service Worker** – Cached & resilient  
+✔️ **IndexedDB Storage** – All sales & product data stored locally  
+✔️ **Print Receipts** – Direct browser printing  
+✔️ **Export & Import Data** – Backup and restore anytime  
+✔️ **No Backend Required**  
+✔️ **Modern UI with shadcn/ui**  
+✔️ **Fast & lightweight**
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🧱 Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **React** – UI framework  
+- **TypeScript** – Type safety  
+- **Vite** – Ultra-fast build system  
+- **shadcn/ui** – Beautiful, accessible components  
+- **Tailwind CSS** – Styling  
+- **IndexedDB** – Offline database  
+- **Service Worker** – Offline & caching  
+- **PWA** – Installable POS app  
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🧠 How Studio POS Works
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- Runs fully in the browser
+- No APIs, no cloud, no login required
+- Uses **IndexedDB** for:
+  - Products
+  - Bills
+  - Sales history
+- Works offline using **Service Workers**
+- Can be installed like a native app via **PWA**
+- Supports:
+  - Receipt printing
+  - Data export to file
+  - Data import from backup
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+This makes it perfect for **local billing counters and studio environments**.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
